@@ -11,10 +11,12 @@ const userSchema = new mongoose.Schema({
     contact:{
         type: String,
         required: true,
+        unique: true,
     },
     password: {
         type: String,
         required: true,
+        select: false,
     },
     fullName:{
         type: String,
