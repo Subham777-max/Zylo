@@ -2,7 +2,7 @@ import userModel from "../models/user.model.js";
 import { config } from "../config/config.js";
 import jwt from "jsonwebtoken";
 
-function sendTokenResponse(user,res){
+function sendTokenResponse(user,res,message){
 
     const token = jwt.sign({
         id: user._id,
@@ -11,6 +11,18 @@ function sendTokenResponse(user,res){
     }, config.JWT_SECRET, { expiresIn: "1h" });
 
     res.cookie("token", token);
+
+    res.status(201).json({ 
+        message,
+        success: true,
+        user: {
+            _id: user._id,
+            email: user.email,
+            fullName: user.fullName,
+            contact: user.contact,
+            role: user.role,
+        }, 
+    });
 }
 
 
@@ -37,17 +49,8 @@ export async function register(req, res) {
             contact
         });
 
-        sendTokenResponse(newUser, res);
-        res.status(201).json({ 
-            message: "User registered successfully",
-            user: {
-                _id: newUser._id,
-                email: newUser.email,
-                fullName: newUser.fullName,
-                contact: newUser.contact,
-                role: newUser.role,
-            }, 
-        });
+        sendTokenResponse(newUser, res, "User registered successfully");
+
     }catch (error) {
         console.error("Error during registration:", error);
         res.status(500).json({ message: "Server error during registration" });
