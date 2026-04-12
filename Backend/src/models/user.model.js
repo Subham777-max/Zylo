@@ -1,6 +1,6 @@
 import e from "express";
 import mongoose from "mongoose";
-import { use } from "passport";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
     email: {
