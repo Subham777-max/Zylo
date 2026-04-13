@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { register,login } from "../controller/auth.controller.js";
+import { register,login, getMe } from "../controller/auth.controller.js";
 import { registerValidation,loginValidation } from "../validator/auth.validator.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 const router = Router();
 
 /**
@@ -16,4 +17,11 @@ router.post("/register", registerValidation, register);
  * @access Public
  */
 router.post("/login", loginValidation, login);
+
+/**
+ * @route POST /api/auth/me
+ * @desc Get current logged in user
+ * @access Private
+ */
+router.get("/me", authMiddleware, getMe);
 export default router;
