@@ -23,7 +23,7 @@ function RegisterForm() {
     isSeller: false,
   });
 
-  const { handleRegister } = useAuth();
+  const { handleRegister,loading } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -241,10 +241,10 @@ function RegisterForm() {
             type="submit"
             id="register-submit"
             className="zylo-btn-primary mt-2"
-            disabled={isSubmitting}
+            disabled={loading}
             style={{ borderRadius: 0 }}
           >
-            {isSubmitting ? (
+            {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <svg
                   className="animate-spin"
