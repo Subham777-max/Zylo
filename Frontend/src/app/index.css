@@ -1,1 +1,422 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
+
+/* ============================================
+   ZYLO — NOCTURNAL ATELIER DESIGN SYSTEM
+   Dark Gold Theme  |  Fashion E-Commerce
+   ============================================ */
+
+@layer base {
+  :root {
+    /* --- Core Brand Colors --- */
+    --color-primary: #f6be39;
+    --color-primary-container: #d4a017;
+    --color-primary-fixed: #ffdfa0;
+    --color-primary-fixed-dim: #f6be39;
+
+    /* --- Secondary (Champagne Gold) --- */
+    --color-secondary: #e1c387;
+    --color-secondary-container: #584414;
+
+    /* --- Surface / Background Layers --- */
+    --color-background: #131313;
+    --color-surface: #131313;
+    --color-surface-dim: #131313;
+    --color-surface-bright: #3a3939;
+    --color-surface-container-lowest: #0e0e0e;
+    --color-surface-container-low: #1c1b1b;
+    --color-surface-container: #201f1f;
+    --color-surface-container-high: #2a2a2a;
+    --color-surface-container-highest: #353534;
+    --color-surface-variant: #353534;
+    --color-surface-tint: #f6be39;
+
+    /* --- Text / On-Surface Colors --- */
+    --color-on-background: #e5e2e1;
+    --color-on-surface: #e5e2e1;
+    --color-on-surface-variant: #d3c5ae;
+    --color-on-primary: #402d00;
+    --color-on-primary-container: #503a00;
+    --color-on-secondary: #402d00;
+    --color-on-secondary-container: #cfb177;
+
+    /* --- Outline / Border --- */
+    --color-outline: #9b8f7a;
+    --color-outline-variant: #4f4634;
+    --color-border: #3f2c0621;
+
+    /* --- Error States --- */
+    --color-error: #ffb4ab;
+    --color-error-container: #93000a;
+    --color-on-error: #690005;
+
+    /* --- Tertiary (Accent blue for info) --- */
+    --color-tertiary: #a9c7ff;
+    --color-tertiary-container: #72a9ff;
+
+    /* --- Typography --- */
+    --font-family: "Inter", sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 2rem;
+    --font-size-display: 3.5rem;
+
+    --font-weight-light: 300;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --letter-spacing-tight: -0.02em;
+    --letter-spacing-label: 0.1em;
+    --line-height-body: 1.6;
+
+    /* --- Spacing --- */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 2.5rem;
+    --spacing-3xl: 3rem;
+    --spacing-4xl: 4rem;
+
+    /* --- Border Radius (sharp — zero-radius brand style) --- */
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-xl: 0;
+    --radius-2xl: 0;
+    --radius-full: 9999px; /* keep for pills/scrollbar only */
+
+    /* --- Transitions --- */
+    --transition-fast: 150ms ease-in-out;
+    --transition-base: 300ms ease-in-out;
+    --transition-slow: 500ms ease-in-out;
+
+    /* --- Shadows (ambient, not heavy) --- */
+    --shadow-ambient: 0 4px 64px 0 rgba(229, 226, 225, 0.04);
+    --shadow-gold-glow: 0 0 0 2px rgba(212, 160, 23, 0.35);
+    --shadow-gold-glow-sm: 0 0 0 1px rgba(212, 160, 23, 0.2);
+  }
+
+  /* ============================================
+     GLOBAL BASE STYLES
+     ============================================ */
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-family);
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-body);
+    font-weight: var(--font-weight-regular);
+    min-height: 100vh;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ============================================
+     SCROLLBAR STYLING (Zylo Lookbook style)
+     ============================================ */
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-surface-container-lowest);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-primary-container);
+    border-radius: var(--radius-full);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+  }
+
+  /* ============================================
+     TYPOGRAPHY UTILITIES
+     ============================================ */
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family);
+    color: var(--color-on-surface);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-spacing-tight);
+    line-height: 1.2;
+  }
+
+  p {
+    color: var(--color-on-surface-variant);
+    line-height: var(--line-height-body);
+  }
+
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-base);
+  }
+
+  a:hover {
+    color: var(--color-primary-fixed);
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: rgba(212, 160, 23, 0.25);
+    color: var(--color-on-surface);
+  }
+
+  /* ============================================
+     INPUT RESET
+     ============================================ */
+
+  input,
+  textarea,
+  select {
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    color: var(--color-on-surface);
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-on-surface);
+    -webkit-box-shadow: 0 0 0px 1000px var(--color-surface-container-highest) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-outline);
+    font-weight: var(--font-weight-light);
+  }
+
+  button {
+    font-family: var(--font-family);
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  /* ============================================
+     ZYLO COMPONENT SYSTEM
+     ============================================ */
+
+  /* --- Card / Surface Container --- */
+  .zylo-card {
+    background-color: var(--color-surface-container-low);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-ambient);
+  }
+
+  /* --- Input Field Group --- */
+  .zylo-input-group {
+    background-color: var(--color-surface-container-highest);
+    border: 1px solid rgba(79, 70, 52, 0.2);
+    border-radius: 0;
+    transition:
+      border-color var(--transition-base),
+      box-shadow var(--transition-base);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 0.55rem 0.85rem;
+  }
+
+  .zylo-input-group:focus-within {
+    border-color: var(--color-primary-container);
+    box-shadow: var(--shadow-gold-glow);
+  }
+
+  .zylo-input-group.zylo-input-error {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 1px rgba(255, 180, 171, 0.3);
+  }
+
+  /* --- Input Icon --- */
+  .zylo-input-icon {
+    color: var(--color-outline);
+    flex-shrink: 0;
+    transition: color var(--transition-base);
+  }
+
+  .zylo-input-group:focus-within .zylo-input-icon {
+    color: var(--color-primary-container);
+  }
+
+  /* --- Label --- */
+  .zylo-label {
+    font-size: 0.65rem;
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant);
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  /* --- Primary Button --- */
+  .zylo-btn-primary {
+    background-color: var(--color-primary-container);
+    color: var(--color-on-primary-container);
+    font-weight: var(--font-weight-semibold);
+    font-size: 0.72rem;
+    letter-spacing: var(--letter-spacing-label);
+    text-transform: uppercase;
+    border: none;
+    border-radius: 0;
+    padding: 0.75rem var(--spacing-xl);
+    width: 100%;
+    transition:
+      background-color var(--transition-base),
+      box-shadow var(--transition-base),
+      transform var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .zylo-btn-primary::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  .zylo-btn-primary:hover {
+    background-color: var(--color-primary);
+    box-shadow: 0 4px 24px rgba(212, 160, 23, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .zylo-btn-primary:hover::before {
+    opacity: 1;
+  }
+
+  .zylo-btn-primary:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  .zylo-btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* --- Ghost / Text Button --- */
+  .zylo-btn-ghost {
+    background: none;
+    border: none;
+    color: var(--color-on-surface-variant);
+    font-size: var(--font-size-sm);
+    padding: 0;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition:
+      color var(--transition-base),
+      text-decoration-color var(--transition-base);
+  }
+
+  .zylo-btn-ghost:hover {
+    color: var(--color-primary);
+    text-decoration-color: var(--color-primary);
+  }
+
+  /* --- Checkbox --- */
+  .zylo-checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: 0.65rem 0.85rem;
+    background-color: var(--color-surface-container);
+    border: 1px solid rgba(79, 70, 52, 0.15);
+    border-radius: 0;
+    cursor: pointer;
+    transition:
+      background-color var(--transition-base),
+      border-color var(--transition-base);
+  }
+
+  .zylo-checkbox-wrapper:hover {
+    background-color: var(--color-surface-container-high);
+    border-color: rgba(212, 160, 23, 0.2);
+  }
+
+  .zylo-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border: 1.5px solid var(--color-outline);
+    border-radius: 0;
+    background-color: transparent;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+    position: relative;
+  }
+
+  .zylo-checkbox:checked {
+    background-color: var(--color-primary-container);
+    border-color: var(--color-primary-container);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23402d00' d='M10 3L4.5 8.5 2 6' stroke='%23402d00' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 10px 10px;
+  }
+
+  .zylo-checkbox:focus {
+    outline: none;
+    box-shadow: var(--shadow-gold-glow-sm);
+  }
+
+  /* --- Divider --- */
+  .zylo-divider {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(79, 70, 52, 0.4),
+      transparent
+    );
+  }
+}
