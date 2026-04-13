@@ -82,7 +82,8 @@ export async function login(req, res) {
 
 export async function getMe(req, res) {
     try {
-        const user = await userModel.findById(req.user._id).select("-password");
+        console.log("Fetching user with ID:", req.user);
+        const user = await userModel.findById(req.user.id).select("-password");
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
