@@ -2,7 +2,7 @@ import userModel from "../models/user.model.js";
 import { config } from "../config/config.js";
 import jwt from "jsonwebtoken";
 
-function sendTokenResponse(user,res,message){
+function sendTokenResponse(user,res,message,statusCode = 200){
 
     const token = jwt.sign({
         id: user._id,
@@ -12,7 +12,7 @@ function sendTokenResponse(user,res,message){
 
     res.cookie("token", token);
 
-    res.status(201).json({ 
+    res.status(statusCode).json({ 
         message,
         success: true,
         user: {
@@ -50,10 +50,32 @@ export async function register(req, res) {
             role: isSeller ? "seller" : "buyer",
         });
 
-        sendTokenResponse(newUser, res, "User registered successfully");
+        sendTokenResponse(newUser, res, "User registered successfully", 201);
 
     }catch (error) {
         console.error("Error during registration:", error);
         res.status(500).json({ message: "Server error during registration" });
+    }
+}
+
+
+export async function login(req, res) {
+    const { email, password } = req.body;
+
+    try {
+        const user = await userModel.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid email or password" });
+        }
+        const isMatch = await user.comparePassword(password);
+
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid email or password" });
+        }
+        sendTokenResponse(user, res, "Login successful", 200);
+    } catch (error) {
+        console.error("Error during login:", error);
+        res.status(500).json({ message: "Server error during login" });
     }
 }
