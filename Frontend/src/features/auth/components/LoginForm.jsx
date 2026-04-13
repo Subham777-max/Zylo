@@ -16,7 +16,7 @@ function LoginForm() {
     password: "",
   });
 
-  const { handleLogin, loading, error: authError } = useAuth();
+  const { handleLogin, loading } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -95,12 +95,6 @@ function LoginForm() {
           }}
         />
       </div>
-
-      {authError && (
-        <div style={{ color: "var(--color-error)", fontSize: "0.8rem", marginBottom: "1rem" }}>
-          {authError}
-        </div>
-      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3">

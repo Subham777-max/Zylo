@@ -1,5 +1,5 @@
 import { setError,setLoading,setUser } from "../state/auth.slice";
-import { register, login } from "../services/auth.service";
+import { register, login, getMe } from "../services/auth.service";
 import { useDispatch, useSelector } from "react-redux";
 
 export const useAuth = () => {
@@ -10,11 +10,11 @@ export const useAuth = () => {
         dispatch(setError(null));
         try {
             const response = await register({ email, contact, password, fullName, isSeller });
-            setUser(response.user);
+            dispatch(setUser(response.user));
         } catch (error) {
-            setError(error.message);
+            dispatch(setError(error.message));
         } finally {
-            setLoading(false);
+            dispatch(setLoading(false));
         }
     }
 
@@ -25,15 +25,27 @@ export const useAuth = () => {
             const response = await login({ email, password });
             dispatch(setUser(response.user));
         } catch (error) {
-            setError(error.message);
+            dispatch(setError(error.message));
         } finally {
-            setLoading(false);
+            dispatch(setLoading(false));
+        }
+    }
+
+    async function handleGetMe(){
+        try{
+            const response = await getMe();
+            dispatch(setUser(response.user));
+        }catch(error){
+            dispatch(setError(error.message));
+        }finally{
+            dispatch(setLoading(false));
         }
     }
 
     return {
         handleRegister,
         handleLogin,
+        handleGetMe,
         user,
         loading,
         error
