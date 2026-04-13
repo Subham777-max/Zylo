@@ -92,3 +92,31 @@ export async function getMe(req, res) {
         res.status(500).json({ message: "Server error while fetching user" });
     }
 }
+
+export async function googleAuthCallback(req, res) {
+    try{
+        const { id,displayName,emails } = req.user;
+        const email = emails[0].value;
+
+        const user = await userModel.findOne({ email });
+        if(!user){
+            await userModel.create({
+                email,
+                fullName: displayName,
+                googleId: id,
+            });
+        }
+        const token = jwt.sign({
+            id: user._id,
+            email: user.email,
+            role: user.role,
+        }, config.JWT_SECRET, { expiresIn: "1h" });
+
+        res.cookie("token", token);
+        res.redirect("http://localhost:5173/");
+        
+    }catch (error) {
+        console.error("Error during Google authentication:", error);
+        res.status(500).json({ message: "Server error during Google authentication" });
+    }
+}
