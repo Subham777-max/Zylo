@@ -1,10 +1,13 @@
 import { setError,setLoading,setUser } from "../state/auth.slice";
 import { register, login } from "../services/auth.service";
+import { useDispatch, useSelector } from "react-redux";
 
 export const useAuth = () => {
+    const dispatch = useDispatch();
+    const { loading, user, error } = useSelector((state) => state.auth);
     async function handleRegister({ email, contact, password, fullName, isSeller = false }){
-        setLoading(true);
-        setError(null);
+        dispatch(setLoading(true));
+        dispatch(setError(null));
         try {
             const response = await register({ email, contact, password, fullName, isSeller });
             setUser(response.user);
@@ -16,11 +19,11 @@ export const useAuth = () => {
     }
 
     async function handleLogin({ email, password }){
-        setLoading(true);
-        setError(null);
+        dispatch(setLoading(true));
+        dispatch(setError(null));
         try {
             const response = await login({ email, password });
-            setUser(response.user);
+            dispatch(setUser(response.user));
         } catch (error) {
             setError(error.message);
         } finally {
@@ -30,6 +33,9 @@ export const useAuth = () => {
 
     return {
         handleRegister,
-        handleLogin
+        handleLogin,
+        user,
+        loading,
+        error
     }
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Field from "../../../components/ui/Field";
 import {
   UserIcon,
@@ -10,9 +10,11 @@ import {
   EyeOffIcon,
   StoreIcon,
 } from "../../../components/ui/AuthIcons";
+import { useAuth } from "../hooks/useAuth";
 
 
 function RegisterForm() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -20,6 +22,8 @@ function RegisterForm() {
     password: "",
     isSeller: false,
   });
+
+  const { handleRegister } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -58,13 +62,14 @@ function RegisterForm() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!validate()) return;
-    setIsSubmitting(true);
-    try {
-      console.log("Registering:", form);
-      await new Promise((r) => setTimeout(r, 1500));
-    } finally {
-      setIsSubmitting(false);
-    }
+    await handleRegister({
+      email: form.email,
+      password: form.password,
+      fullName: form.fullName,
+      contact: form.contact,
+      isSeller: form.isSeller,
+    })
+    navigate("/");
   }
   return (
     <div
