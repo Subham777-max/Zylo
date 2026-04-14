@@ -23,7 +23,6 @@ const productSchema = new mongoose.Schema({
             type:String,
             enum:["USD", "EUR", "GBP", "INR", "JPY"],
             default:"INR",
-            required:true
         }
     },
     images:[
