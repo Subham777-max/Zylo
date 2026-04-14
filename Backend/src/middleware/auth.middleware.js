@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { config } from "../config/config.js";
+
 export async function authMiddleware(req, res, next) {
     const token = req.cookies.token;
     if (!token) {
@@ -12,4 +13,11 @@ export async function authMiddleware(req, res, next) {
     } catch (error) {
         return res.status(401).json({ message: "Invalid token, authorization denied" });
     }
+}
+
+export async function sellerMiddleware(req, res, next) {
+    if (req.user.role !== "seller") {
+        return res.status(403).json({ message: "Access denied, seller only" });
+    }
+    next();
 }
