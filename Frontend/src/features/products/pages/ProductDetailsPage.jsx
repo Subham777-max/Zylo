@@ -2,24 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useProducts } from "../hooks/useProducts";
+import ProductImageGallery from "../components/ProductImageGallery";
+import { formatPrice, formatDate, getInitials } from "../../../components/helpers/helpers";
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-const CURRENCY_SYMBOLS = { INR: "₹", USD: "$", EUR: "€", GBP: "£", JPY: "¥" };
 
-function formatPrice(amount, currency) {
-  const symbol = CURRENCY_SYMBOLS[currency] ?? currency;
-  return `${symbol} ${Number(amount).toLocaleString("en-IN")}`;
-}
-
-function formatDate(iso) {
-  return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
-}
-
-function getInitials(name = "") {
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-}
-
-// ── Skeleton ───────────────────────────────────────────────────────────────────
+// Skeleton
 function Skeleton() {
   return (
     <div
@@ -35,7 +22,7 @@ function Skeleton() {
             ))}
           </div>
         </div>
-        <div className="lg:w-[420px] flex flex-col gap-4">
+        <div className="lg:w-105 flex flex-col gap-4">
           {[80, 60, 40, 100, 100].map((w, i) => (
             <div key={i} className="h-4 rounded-none" style={{ width: `${w}%`, backgroundColor: "var(--color-surface-container-low)" }} />
           ))}
@@ -45,7 +32,7 @@ function Skeleton() {
   );
 }
 
-// ── ProductDetailsPage ─────────────────────────────────────────────────────────
+// ProductDetailsPage
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -74,7 +61,6 @@ export default function ProductDetailsPage() {
   );
 
   const images   = product.images ?? [];
-  const mainImg  = images[activeImg]?.url ?? null;
   const seller   = product.seller;
 
   return (
@@ -83,8 +69,8 @@ export default function ProductDetailsPage() {
       style={{ backgroundColor: "var(--color-background)", fontFamily: "var(--font-family)" }}
     >
       {/* Centered container — prevents empty space on ultra-wide screens */}
-      <div className="max-w-[1100px] mx-auto">
-      {/* ── Back breadcrumb ────────────────────────────────────────────── */}
+      <div className="max-w-275 mx-auto">
+      {/* Back breadcrumb */}
       <button
       onClick={() => navigate(-1)}
         className="flex items-center gap-2 mb-8 transition-colors duration-200"
@@ -105,62 +91,10 @@ export default function ProductDetailsPage() {
 
       <div className="flex flex-col lg:flex-row gap-8 xl:gap-14">
 
-        {/* ── LEFT — Image gallery ───────────────────────────────────── */}
-        <div className="flex flex-col gap-3 w-full lg:w-[420px] lg:shrink-0">
-          {/* Main image — capped at 500px so it doesn't fill the full screen */}
-          <div
-            className="w-full overflow-hidden max-h-[500px]"
-            style={{
-              aspectRatio: "4/5",
-              maxHeight: "500px",
-              backgroundColor: "var(--color-surface-container-low)",
-            }}
-          >
-            {mainImg ? (
-              <img
-                src={mainImg}
-                alt={images[activeImg]?.alt ?? product.title}
-                className="w-full h-full object-cover transition-opacity duration-300"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-[0.6rem] uppercase tracking-widest" style={{ color: "var(--color-outline)" }}>No image</span>
-              </div>
-            )}
-          </div>
+        {/* LEFT — Image gallery */}
+        <ProductImageGallery images={images} activeImg={activeImg} setActiveImg={setActiveImg} product={product} />
 
-          {/* Thumbnails */}
-          {images.length > 1 && (
-            <div className="flex gap-2">
-              {images.map((img, idx) => (
-                <button
-                  key={img._id}
-                  onClick={() => setActiveImg(idx)}
-                  className="flex-1 overflow-hidden transition-all duration-200"
-                  style={{
-                    aspectRatio: "1",
-                    border: idx === activeImg
-                      ? "1.5px solid var(--color-primary)"
-                      : "1.5px solid transparent",
-                    padding: 0,
-                    cursor: "pointer",
-                    background: "none",
-                    maxWidth: "80px",
-                  }}
-                >
-                  <img
-                    src={img.url}
-                    alt={img.alt}
-                    className="w-full h-full object-cover"
-                    style={{ opacity: idx === activeImg ? 1 : 0.55, transition: "opacity 200ms" }}
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ── RIGHT — Details panel ─────────────────────────────────────── */}
+        {/* RIGHT — Details panel */}
         <div className="flex-1 flex flex-col gap-5 min-w-0">
 
           {/* Index chip */}
@@ -231,7 +165,7 @@ export default function ProductDetailsPage() {
           </div>
 
           {/* Listed date */}
-          <p className="text-[0.6rem] uppercase tracking-[0.1em]" style={{ color: "var(--color-outline)" }}>
+          <p className="text-[0.6rem] uppercase tracking-widest" style={{ color: "var(--color-outline)" }}>
             Listed on {formatDate(product.createdAt)}
           </p>
 
@@ -240,7 +174,7 @@ export default function ProductDetailsPage() {
 
           {/* Actions */}
           {isSeller ? (
-            /* ── Seller: Edit + Delete ────────────────────────────────── */
+            /* Seller: Edit + Delete */
             <div className="flex flex-col gap-3 mt-1">
               <button
                 onClick={() => navigate(`/seller/products/${product._id}/edit`)}
@@ -283,7 +217,7 @@ export default function ProductDetailsPage() {
               </button>
             </div>
           ) : (
-            /* ── Buyer: Buy Now + Add to Cart ────────────────────────── */
+            /* Buyer: Buy Now + Add to Cart */
             <div className="flex flex-col gap-3 mt-1">
               {/* Buy Now — solid gold */}
               <button
