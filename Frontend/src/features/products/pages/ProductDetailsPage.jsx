@@ -238,51 +238,97 @@ export default function ProductDetailsPage() {
           {/* Gold rule */}
           <div style={{ height: "1px", backgroundColor: "rgba(212,160,23,0.1)" }} />
 
-          {/* Actions — only visible to the product's seller */}
-          {isSeller && (
-          <div className="flex flex-col gap-3 mt-1">
-            {/* Edit */}
-            <button
-              onClick={() => navigate(`/seller/products/${product._id}/edit`)}
-              className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
-              style={{
-                backgroundColor: "var(--color-primary-container)",
-                color: "var(--color-on-primary-container)",
-                border: "none",
-                cursor: "pointer",
-                fontFamily: "var(--font-family)",
-                borderRadius: 0,
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.12)")}
-              onMouseLeave={(e) => (e.currentTarget.style.filter = "none")}
-            >
-              Edit Product
-            </button>
+          {/* Actions */}
+          {isSeller ? (
+            /* ── Seller: Edit + Delete ────────────────────────────────── */
+            <div className="flex flex-col gap-3 mt-1">
+              <button
+                onClick={() => navigate(`/seller/products/${product._id}/edit`)}
+                className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
+                style={{
+                  backgroundColor: "var(--color-primary-container)",
+                  color: "var(--color-on-primary-container)",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-family)",
+                  borderRadius: 0,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.12)")}
+                onMouseLeave={(e) => (e.currentTarget.style.filter = "none")}
+              >
+                Edit Product
+              </button>
 
-            {/* Delete */}
-            <button
-              onClick={() => {/* wire delete handler later */}}
-              className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
-              style={{
-                border: "1px solid rgba(255,100,100,0.35)",
-                color: "rgba(255,120,120,0.8)",
-                backgroundColor: "transparent",
-                cursor: "pointer",
-                fontFamily: "var(--font-family)",
-                borderRadius: 0,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "rgba(255,80,80,0.08)";
-                e.currentTarget.style.borderColor = "rgba(255,100,100,0.6)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.borderColor = "rgba(255,100,100,0.35)";
-              }}
-            >
-              Delete Listing
-            </button>
-          </div>
+              <button
+                onClick={() => {/* wire delete handler later */}}
+                className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
+                style={{
+                  border: "1px solid rgba(255,100,100,0.35)",
+                  color: "rgba(255,120,120,0.8)",
+                  backgroundColor: "transparent",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-family)",
+                  borderRadius: 0,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(255,80,80,0.08)";
+                  e.currentTarget.style.borderColor = "rgba(255,100,100,0.6)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.borderColor = "rgba(255,100,100,0.35)";
+                }}
+              >
+                Delete Listing
+              </button>
+            </div>
+          ) : (
+            /* ── Buyer: Buy Now + Add to Cart ────────────────────────── */
+            <div className="flex flex-col gap-3 mt-1">
+              {/* Buy Now — solid gold */}
+              <button
+                onClick={() => {/* wire buy now later */}}
+                className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
+                style={{
+                  backgroundColor: "var(--color-primary-container)",
+                  color: "var(--color-on-primary-container)",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-family)",
+                  borderRadius: 0,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.12)")}
+                onMouseLeave={(e) => (e.currentTarget.style.filter = "none")}
+              >
+                Buy Now
+              </button>
+
+              {/* Add to Cart — ghost gold */}
+              <button
+                onClick={() => {/* wire add to cart later */}}
+                className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
+                style={{
+                  border: "1px solid var(--color-primary-container)",
+                  color: "var(--color-primary-container)",
+                  backgroundColor: "transparent",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-family)",
+                  borderRadius: 0,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(212,160,23,0.08)";
+                  e.currentTarget.style.borderColor = "var(--color-primary)";
+                  e.currentTarget.style.color = "var(--color-primary)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.borderColor = "var(--color-primary-container)";
+                  e.currentTarget.style.color = "var(--color-primary-container)";
+                }}
+              >
+                Add to Cart
+              </button>
+            </div>
           )}
 
           {/* Image count chip — always visible */}
