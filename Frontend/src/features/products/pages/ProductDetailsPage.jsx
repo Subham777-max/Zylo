@@ -82,6 +82,8 @@ export default function ProductDetailsPage() {
       className="min-h-full p-6 lg:p-10"
       style={{ backgroundColor: "var(--color-background)", fontFamily: "var(--font-family)" }}
     >
+      {/* Centered container — prevents empty space on ultra-wide screens */}
+      <div className="max-w-[1100px] mx-auto">
       {/* ── Back breadcrumb ────────────────────────────────────────────── */}
       <button
       onClick={() => navigate(-1)}
@@ -104,7 +106,7 @@ export default function ProductDetailsPage() {
       <div className="flex flex-col lg:flex-row gap-8 xl:gap-14">
 
         {/* ── LEFT — Image gallery ───────────────────────────────────── */}
-        <div className="flex flex-col gap-3 lg:max-w-[480px] xl:max-w-[520px] w-full">
+        <div className="flex flex-col gap-3 w-full lg:w-[420px] lg:shrink-0">
           {/* Main image — capped at 500px so it doesn't fill the full screen */}
           <div
             className="w-full overflow-hidden max-h-[500px]"
@@ -159,7 +161,7 @@ export default function ProductDetailsPage() {
         </div>
 
         {/* ── RIGHT — Details panel ─────────────────────────────────────── */}
-        <div className="lg:w-[420px] xl:w-[460px] shrink-0 flex flex-col gap-5">
+        <div className="flex-1 flex flex-col gap-5 min-w-0">
 
           {/* Index chip */}
           <span
@@ -289,6 +291,7 @@ export default function ProductDetailsPage() {
           </p>
         </div>
       </div>
+      </div>{/* /max-w centered container */}
     </div>
   );
 }
