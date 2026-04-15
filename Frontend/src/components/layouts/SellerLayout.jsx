@@ -27,10 +27,10 @@ export default function SellerLayout() {
       className="flex h-full min-h-[calc(100vh-64px)]"
       style={{ backgroundColor: "var(--color-background)", fontFamily: "var(--font-family)" }}
     >
-      {/*  Desktop sidebar (always visible ≥ lg)  */}
+      {/*  Desktop sidebar — sticky, does NOT scroll with content  */}
       <div
-        className="hidden lg:flex flex-col shrink-0"
-        style={{ width: "220px" }}
+        className="hidden lg:flex flex-col shrink-0 sticky top-16 self-start"
+        style={{ width: "220px", height: "calc(100vh - 64px)", overflowY: "auto" }}
       >
         <SellerSidebar onNavigate={() => {}} />
       </div>
