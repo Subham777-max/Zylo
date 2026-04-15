@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createProduct, getProductById, getProductsCreatedByMe } from "../services/product.service";
 import { setProduct, setSellerProducts, setLoading, setError } from "../states/produc.slice";
 
-function useProducts() {
+export function useProducts() {
     const dispatch = useDispatch();
     const { sellerProducts, product, loading, error } = useSelector((state) => state.products);
 
@@ -53,5 +53,3 @@ function useProducts() {
         handleGetProductById,
     };
 }
-
-export default useProducts;
