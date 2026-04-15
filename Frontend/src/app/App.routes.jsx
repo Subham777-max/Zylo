@@ -6,6 +6,8 @@ import SellerRoutes from "../components/utils/SellerRoutes";
 import CreateProductPage from "../features/products/pages/CreateProductPage";
 import MainLayout from "../components/layouts/MainLayout";
 import SellerLayout from "../components/layouts/SellerLayout";
+import MyProductPage from "../features/products/pages/MyProductPage";
+import ProductDetailsPage from "../features/products/pages/ProductDetailsPage";
 
 export const router = createBrowserRouter([
     {
@@ -16,6 +18,12 @@ export const router = createBrowserRouter([
                 index: true,
                 element: <h1 style={{ paddingLeft: "2rem", paddingTop: "2rem", color: "var(--color-on-surface)" }}>Home</h1>,
             },
+            // ── Shared product details — any authenticated user ────────────────
+            {
+                path: "products/:id",
+                element: <ProductDetailsPage />,
+            },
+
             // ── Seller section (Navbar + Sidebar) ─────────────────────────────
             {
                 path: "seller",
@@ -27,7 +35,7 @@ export const router = createBrowserRouter([
                     },
                     {
                         path: "products",
-                        element: <h1 style={{ padding: "2rem", color: "var(--color-on-surface)" }}>My Products</h1>,
+                        element: <MyProductPage />,
                     },
                     {
                         path: "orders",
