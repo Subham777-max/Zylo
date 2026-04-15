@@ -1,16 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { SearchIcon, CartIcon, UserIcon, MenuIcon } from "../ui/NavIcons";
+import { SearchIcon, CartIcon, UserIcon, MenuIcon,CloseIcon } from "../ui/NavIcons";
 
-const CloseIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
 
-// ── Nav links config ───────────────────────────────────────────────────────────
+//  Nav links config
 
 const NAV_LINKS = [
   { label: "New In",      to: "/new-in" },
@@ -19,7 +13,7 @@ const NAV_LINKS = [
   { label: "Sellers",     to: "/sellers" },
 ];
 
-// ── Navbar ─────────────────────────────────────────────────────────────────────
+//  Navbar 
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen]         = useState(false);
@@ -63,7 +57,7 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── Main Bar ──────────────────────────────────────────────────────── */}
+      {/*  Main Bar  */}
       <header
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
@@ -79,7 +73,7 @@ export default function Navbar() {
       >
         <div className="h-full max-w-360 mx-auto px-6 lg:px-10 flex items-center justify-between gap-6">
 
-          {/* ── Brand ───────────────────────────────────────────────────── */}
+          {/*  Brand  */}
           <Link to="/" className="flex flex-col leading-none shrink-0">
             <span
               className="font-bold tracking-[0.22em] text-[1.1rem]"
@@ -95,7 +89,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* ── Desktop Nav Links (centre) ───────────────────────────────── */}
+          {/*  Desktop Nav Links (centre)  */}
           <nav className="hidden lg:flex items-center gap-8">
             {NAV_LINKS.map(({ label, to }) => (
               <NavLink key={to} to={to} className={navLinkClass}>
@@ -104,7 +98,7 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* ── Right Actions ────────────────────────────────────────────── */}
+          {/*  Right Actions  */}
           <div className="flex items-center gap-3">
 
             {/* Search toggle */}
@@ -189,7 +183,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* ── Search Overlay ────────────────────────────────────────────────────── */}
+      {/*  Search Overlay  */}
       <div
         className="fixed left-0 right-0 z-40 overflow-hidden transition-all duration-300"
         style={{
@@ -225,7 +219,7 @@ export default function Navbar() {
         </form>
       </div>
 
-      {/* ── Mobile Drawer ─────────────────────────────────────────────────────── */}
+      {/*  Mobile Drawer  */}
       <div
         className="fixed inset-0 z-30 lg:hidden transition-opacity duration-300"
         style={{
