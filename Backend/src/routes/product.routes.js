@@ -41,7 +41,7 @@ router.delete("/:id", authMiddleware, sellerMiddleware,deleteProductById);
 
 /**
  * @route GET /api/products
- * @desc Get all products with pagination and search
+ * @desc Get all 
  * @access Private
  */
 router.get("/", authMiddleware, getAllProducts);
