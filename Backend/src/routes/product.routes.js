@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware, sellerMiddleware } from '../middleware/auth.middleware.js';
-import { createProduct,deleteProductById,getMyProducts,getProductById } from '../controller/product.controller.js';
+import { createProduct,deleteProductById,getAllProducts,getMyProducts,getProductById } from '../controller/product.controller.js';
 import multer from 'multer';
 import { createProductValidator } from '../validator/product.validator.js';
 
@@ -38,5 +38,13 @@ router.get("/:id", getProductById);
  * @access Private(seller only)
  */
 router.delete("/:id", authMiddleware, sellerMiddleware,deleteProductById);
+
+/**
+ * @route GET /api/products
+ * @desc Get all products with pagination and search
+ * @access Private
+ */
+router.get("/", authMiddleware, getAllProducts);
+
 
 export default router;

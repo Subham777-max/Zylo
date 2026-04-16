@@ -93,3 +93,17 @@ export async function deleteProductById(req, res) {
         return res.status(500).json({ message: "Server error" });
     }
 }
+
+export async function getAllProducts(req, res) {
+    try{
+        const products = await productModel.find().populate("seller", "fullName email").sort({ createdAt: -1 });
+        res.status(200).json({
+            message: "Products fetched successfully",
+            success: true,
+            products
+        });
+    }catch(error){
+        console.error("Error fetching products:", error);
+        return res.status(500).json({ message: "Server error" });
+    }
+}
