@@ -73,3 +73,23 @@ export async function getProductById(req, res) {
         return res.status(500).json({ message: "Server error" });
     }
 }
+
+export async function deleteProductById(req, res) {
+    try{
+        const productId = req.params.id;
+        const userId = req.user.id;
+        const product = await productModel.findOneAndDelete({ _id: productId, seller: userId });
+
+        if (!product) {
+            return res.status(404).json({ message: "Product not found or unauthorized" });
+        }
+
+        res.status(200).json({
+            message: "Product deleted successfully",
+            success: true
+        });
+    }catch(error){
+        console.error("Error deleting product:", error);
+        return res.status(500).json({ message: "Server error" });
+    }
+}
