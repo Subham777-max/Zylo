@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
-import { createProduct, getProductById, getProductsCreatedByMe,deleteProduct } from "../services/product.service";
-import { setProduct, setSellerProducts, setLoading, setError, setDeleting } from "../states/produc.slice";
+import { createProduct, getProductById, getProductsCreatedByMe,deleteProduct,getAllProducts } from "../services/product.service";
+import { setProduct, setSellerProducts, setLoading, setError, setDeleting,setAllProducts } from "../states/produc.slice";
 
 const CACHE_TIME = 1000 * 60 * 5;
 
 export function useProducts() {
     const dispatch = useDispatch();
-    const { sellerProducts, product, loading, error, productsById, sellerProductsCache, deleting } = useSelector((state) => state.products);
+    const { sellerProducts, product, loading, error, productsById,allProducts,allProductsCache,sellerProductsCache,deleting } = useSelector((state) => state.products);
 
     const handleCreateProduct = async (formData) => {
         try {
@@ -73,15 +73,37 @@ export function useProducts() {
         }
     };
 
+    const handleGetAllProducts = async () => {
+        try {
+            //using cache
+            if (
+                allProductsCache &&
+                Date.now() - allProductsCache.timestamp < CACHE_TIME
+            ) {
+                dispatch(setAllProducts(allProductsCache.data));
+                return;
+            }
+            dispatch(setLoading(true));
+            const data = await getAllProducts();
+            dispatch(setAllProducts(data.products));
+        } catch (error) {
+            dispatch(setError(error));
+        }finally{
+            dispatch(setLoading(false));
+        }
+    };
+
     return {
         sellerProducts,
         product,
+        allProducts,
         loading,
         deleting,
         error,
         handleCreateProduct,
         handleGetProductsCreatedByMe,
         handleGetProductById,
-        handleDeleteProduct
+        handleDeleteProduct,
+        handleGetAllProducts
     };
 }
