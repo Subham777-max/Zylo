@@ -9,6 +9,7 @@ const productSlice = createSlice({
         productsById: {},          // cache for individual products
         sellerProductsCache: null, // cache for seller products
         loading: false,
+        deleting: false,
         error: null,
     },
     reducers: {
@@ -34,11 +35,14 @@ const productSlice = createSlice({
         setLoading: (state, action) => {
             state.loading = action.payload;
         },
+        setDeleting: (state, action) => {
+            state.deleting = action.payload;
+        },
         setError: (state, action) => {
             state.error = action.payload;
         },
     },
 });
 
-export const { setProduct,setSellerProducts, setLoading, setError } = productSlice.actions;
+export const { setProduct,setSellerProducts, setLoading, setDeleting, setError } = productSlice.actions;
 export default productSlice.reducer;

@@ -36,7 +36,7 @@ function Skeleton() {
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { product, loading, handleGetProductById } = useProducts();
+  const { product, loading, handleGetProductById,deleting,handleDeleteProduct } = useProducts();
   const user = useSelector((s) => s.auth?.user ?? null);
   const [activeImg, setActiveImg] = useState(0);
 
@@ -194,7 +194,11 @@ export default function ProductDetailsPage() {
               </button>
 
               <button
-                onClick={() => {/* wire delete handler later */}}
+                onClick={() => {
+                  handleDeleteProduct(product._id);
+                  navigate("/seller/products");
+                }}
+                disabled={deleting}
                 className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
                 style={{
                   border: "1px solid rgba(255,100,100,0.35)",

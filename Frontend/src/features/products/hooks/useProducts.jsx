@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
-import { createProduct, getProductById, getProductsCreatedByMe } from "../services/product.service";
-import { setProduct, setSellerProducts, setLoading, setError } from "../states/produc.slice";
+import { createProduct, getProductById, getProductsCreatedByMe,deleteProduct } from "../services/product.service";
+import { setProduct, setSellerProducts, setLoading, setError, setDeleting } from "../states/produc.slice";
 
 const CACHE_TIME = 1000 * 60 * 5;
 
 export function useProducts() {
     const dispatch = useDispatch();
-    const { sellerProducts, product, loading, error, productsById, sellerProductsCache } = useSelector((state) => state.products);
+    const { sellerProducts, product, loading, error, productsById, sellerProductsCache, deleting } = useSelector((state) => state.products);
 
     const handleCreateProduct = async (formData) => {
         try {
@@ -61,13 +61,27 @@ export function useProducts() {
         }
     };
 
+    const handleDeleteProduct = async (id) => {
+        try {
+            dispatch(setDeleting(true));
+            await deleteProduct(id);
+            dispatch(setProduct(null));
+        } catch (error) {
+            dispatch(setError(error));
+        }finally{
+            dispatch(setDeleting(false));
+        }
+    };
+
     return {
         sellerProducts,
         product,
         loading,
+        deleting,
         error,
         handleCreateProduct,
         handleGetProductsCreatedByMe,
         handleGetProductById,
+        handleDeleteProduct
     };
 }
