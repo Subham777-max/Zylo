@@ -5,15 +5,31 @@ const productSlice = createSlice({
     initialState: {
         sellerProducts: [],
         product: null,
+        //cache
+        productsById: {},          // cache for individual products
+        sellerProductsCache: null, // cache for seller products
         loading: false,
         error: null,
     },
     reducers: {
         setSellerProducts: (state, action) => {
             state.sellerProducts = action.payload;
+
+            //caching
+            state.sellerProductsCache = {
+                data: action.payload,
+                timestamp: Date.now(),
+            };
         },
         setProduct: (state, action) => {
-            state.product = action.payload;
+            const product = action.payload;
+            state.product = product;
+
+            //caching
+            state.productsById[product._id] = {
+                data: product,
+                timestamp: Date.now(),
+            };
         },
         setLoading: (state, action) => {
             state.loading = action.payload;
@@ -24,5 +40,5 @@ const productSlice = createSlice({
     },
 });
 
-export const { setProducts,setProduct,setSellerProducts, setLoading, setError } = productSlice.actions;
+export const { setProduct,setSellerProducts, setLoading, setError } = productSlice.actions;
 export default productSlice.reducer;
