@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useProducts } from "../hooks/useProducts";
 import ProductImageGallery from "../components/ProductImageGallery";
 import { formatPrice, formatDate, getInitials } from "../../../components/helpers/helpers";
+import ConfirmModal from "../../../components/utils/ConfirmModal";
 
 
 // Skeleton
@@ -39,6 +40,7 @@ export default function ProductDetailsPage() {
   const { product, loading, handleGetProductById,deleting,handleDeleteProduct } = useProducts();
   const user = useSelector((s) => s.auth?.user ?? null);
   const [activeImg, setActiveImg] = useState(0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Is the current user the seller of this product?
   const isSeller = user && product?.seller?._id && user._id === product.seller._id;
@@ -194,10 +196,7 @@ export default function ProductDetailsPage() {
               </button>
 
               <button
-                onClick={() => {
-                  handleDeleteProduct(product._id);
-                  navigate("/seller/products");
-                }}
+                onClick={() => setShowDeleteModal(true)}
                 disabled={deleting}
                 className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
                 style={{
@@ -276,6 +275,22 @@ export default function ProductDetailsPage() {
         </div>
       </div>
       </div>{/* /max-w centered container */}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          setShowDeleteModal(false);
+          handleDeleteProduct(product._id);
+          navigate("/seller/products");
+        }}
+        title="Delete Listing"
+        message={`Are you sure you want to permanently delete "${product.title}"? This action cannot be undone and the product will be removed from the store.`}
+        confirmText={deleting ? "Deleting..." : "Delete Permanently"}
+        cancelText="Cancel"
+        isDestructive={true}
+      />
     </div>
   );
 }
