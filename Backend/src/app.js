@@ -32,7 +32,7 @@ passport.use(new GoogleStragey({
 // Routes
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
-app.use("/api/charts", chartRouter);
+app.use("/api/carts", chartRouter);
 
 
 export default app;

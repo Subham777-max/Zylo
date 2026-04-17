@@ -4,29 +4,29 @@ import { addToChart, getChart, removeFromChart, updateQuantity } from "../contro
 const router = Router();
 
 /**
- * @route POST /api/charts
- * @desc Add a product to the chart
+ * @route POST /api/carts
+ * @desc Add a product to the cart
  * @access Private
  */
 router.post("/", authMiddleware, addToChart);
 
 /**
- * @route GET /api/charts
- * @desc Get the user's chart
+ * @route GET /api/carts
+ * @desc Get the user's cart
  * @access Private
  */
 router.get("/", authMiddleware, getChart);
 
 /**
- * @route DELETE /api/charts
- * @desc Remove a product from the chart
+ * @route DELETE /api/carts/:productId
+ * @desc Remove a product from the cart
  * @access Private
  */
-router.delete("/", authMiddleware, removeFromChart);
+router.delete("/:productId", authMiddleware, removeFromChart);
 
 /**
- * @route PATCH /api/charts
- * @desc Update the quantity of a product in the chart
+ * @route PATCH /api/carts
+ * @desc Update the quantity of a product in the cart
  * @access Private
  */
 router.patch("/", authMiddleware, updateQuantity);
