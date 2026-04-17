@@ -8,6 +8,7 @@ import MainLayout from "../components/layouts/MainLayout";
 import SellerLayout from "../components/layouts/SellerLayout";
 import MyProductPage from "../features/products/pages/MyProductPage";
 import ProductDetailsPage from "../features/products/pages/ProductDetailsPage";
+import CartPage from "../features/products/pages/CartPage";
 
 export const router = createBrowserRouter([
     {
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
             {
                 path: "products/:id",
                 element: <ProductDetailsPage />,
+            },
+            {
+                path: "cart",
+                element: <CartPage />,
             },
 
             // ── Seller section (Navbar + Sidebar) ─────────────────────────────

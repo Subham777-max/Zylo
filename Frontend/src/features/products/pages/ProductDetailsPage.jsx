@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useProducts } from "../hooks/useProducts";
+import { useCart } from "../hooks/useCart";
 import ProductImageGallery from "../components/ProductImageGallery";
 import { formatPrice, formatDate, getInitials } from "../../../components/helpers/helpers";
 import ConfirmModal from "../../../components/utils/ConfirmModal";
@@ -39,8 +40,19 @@ export default function ProductDetailsPage() {
   const navigate = useNavigate();
   const { product, loading, handleGetProductById,deleting,handleDeleteProduct } = useProducts();
   const user = useSelector((s) => s.auth?.user ?? null);
+  const { handleAddToCart } = useCart();
   const [activeImg, setActiveImg] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [cartAdded, setCartAdded] = useState(false);
+  const cartTimerRef = useRef(null);
+
+  const handleAddToCartClick = async () => {
+    if (cartAdded) return;
+    await handleAddToCart(product._id, 1);
+    setCartAdded(true);
+    clearTimeout(cartTimerRef.current);
+    cartTimerRef.current = setTimeout(() => setCartAdded(false), 2500);
+  };
 
   // Is the current user the seller of this product?
   const isSeller = user && product?.seller?._id && user._id === product.seller._id;
@@ -224,7 +236,7 @@ export default function ProductDetailsPage() {
             <div className="flex flex-col gap-3 mt-1">
               {/* Buy Now — solid gold */}
               <button
-                onClick={() => {/* wire buy now later */}}
+                onClick={() => {/* wire buy now / Razorpay later */}}
                 className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
                 style={{
                   backgroundColor: "var(--color-primary-container)",
@@ -240,30 +252,43 @@ export default function ProductDetailsPage() {
                 Buy Now
               </button>
 
-              {/* Add to Cart — ghost gold */}
+              {/* Add to Cart — ghost gold with feedback */}
               <button
-                onClick={() => {/* wire add to cart later */}}
-                className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
+                onClick={handleAddToCartClick}
+                disabled={cartAdded}
+                className="w-full py-3 font-semibold uppercase tracking-[0.13em] text-[0.68rem] flex items-center justify-center gap-2"
                 style={{
-                  border: "1px solid var(--color-primary-container)",
-                  color: "var(--color-primary-container)",
-                  backgroundColor: "transparent",
-                  cursor: "pointer",
+                  border: cartAdded ? "1px solid rgba(74,222,128,0.5)" : "1px solid var(--color-primary-container)",
+                  color: cartAdded ? "rgba(74,222,128,0.9)" : "var(--color-primary-container)",
+                  backgroundColor: cartAdded ? "rgba(74,222,128,0.06)" : "transparent",
+                  cursor: cartAdded ? "default" : "pointer",
                   fontFamily: "var(--font-family)",
                   borderRadius: 0,
+                  transition: "all 400ms cubic-bezier(0.4, 0, 0.2, 1)",
                 }}
                 onMouseEnter={(e) => {
+                  if (cartAdded) return;
                   e.currentTarget.style.backgroundColor = "rgba(212,160,23,0.08)";
                   e.currentTarget.style.borderColor = "var(--color-primary)";
                   e.currentTarget.style.color = "var(--color-primary)";
                 }}
                 onMouseLeave={(e) => {
+                  if (cartAdded) return;
                   e.currentTarget.style.backgroundColor = "transparent";
                   e.currentTarget.style.borderColor = "var(--color-primary-container)";
                   e.currentTarget.style.color = "var(--color-primary-container)";
                 }}
               >
-                Add to Cart
+                {cartAdded ? (
+                  <>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Added to Cart
+                  </>
+                ) : (
+                  "Add to Cart"
+                )}
               </button>
             </div>
           )}
