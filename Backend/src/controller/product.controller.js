@@ -107,3 +107,52 @@ export async function getAllProducts(req, res) {
         return res.status(500).json({ message: "Server error" });
     }
 }
+
+export async function addProductVariant(req, res){
+    try{
+        const productId = req.params.id;
+        const { attributes, priceAmount, priceCurrency, stock } = req.body;
+
+        let product = await productModel.findOne({ _id: productId, seller: req.user.id });
+        if(!product){
+            return res.status(404).json({ message: "Product not found or unauthorized" });
+        }
+        const files = req.files;
+
+        let images = null;
+        if(files && files.length > 0){
+            images = await Promise.all(files.map(async (file) =>{
+                return await uploadFile({
+                    buffer: file.buffer,
+                    fileName: file.originalname,
+                    folder: "zylo/products/variants"
+                })
+            }))
+        }
+
+        const variant = {
+            attributes,
+            price: {
+                amount: priceAmount,
+                currency: priceCurrency || "INR"
+            },
+            stock: stock || 0,
+            images: images ? images.map((img,idx) => ({
+                url: img.url,
+                alt: product.title + " variant image " + (idx + 1)
+            })) : []
+        };
+
+        product.variants.push(variant);
+        await product.save();
+        res.status(200).json({
+            message: "Product variant added successfully",
+            success: true,
+            product
+        });
+
+    }catch(error){
+        console.error("Error adding product variant:", error);
+        return res.status(500).json({ message: "Server error" });
+    }
+}
