@@ -5,10 +5,8 @@ import { useProducts } from "../hooks/useProducts";
 import { useCart } from "../hooks/useCart";
 import ProductImageGallery from "../components/ProductImageGallery";
 import { formatPrice, formatDate, getInitials } from "../../../components/helpers/helpers";
-import ConfirmModal from "../../../components/utils/ConfirmModal";
 
-
-// Skeleton
+// ─── Skeleton ────────────────────────────────────────────────────────────────
 function Skeleton() {
   return (
     <div
@@ -34,17 +32,208 @@ function Skeleton() {
   );
 }
 
-// ProductDetailsPage
+// ─── Variant Selector ─────────────────────────────────────────────────────────
+function VariantSelector({ variants, selectedVariant, onSelect }) {
+  if (!variants || variants.length === 0) return null;
+
+  // Gather all unique attribute keys across all variants
+  const allKeys = [...new Set(variants.flatMap((v) => [...(v.attributes?.keys?.() ?? Object.keys(v.attributes ?? {}))]))];
+
+  // Build a map: key → Set of available values
+  const valueMap = {};
+  allKeys.forEach((key) => {
+    valueMap[key] = [...new Set(
+      variants
+        .map((v) => {
+          if (v.attributes instanceof Map) return v.attributes.get(key);
+          return v.attributes?.[key];
+        })
+        .filter(Boolean)
+    )];
+  });
+
+  // Current selections per key
+  const currentSelections = {};
+  if (selectedVariant) {
+    allKeys.forEach((key) => {
+      if (selectedVariant.attributes instanceof Map) {
+        currentSelections[key] = selectedVariant.attributes.get(key);
+      } else {
+        currentSelections[key] = selectedVariant.attributes?.[key];
+      }
+    });
+  }
+
+  const getAttrValue = (variant, key) => {
+    if (variant.attributes instanceof Map) return variant.attributes.get(key);
+    return variant.attributes?.[key];
+  };
+
+  const handleSelect = (key, value) => {
+    // Build new desired attributes
+    const desired = { ...currentSelections, [key]: value };
+    // Find the variant that matches all desired attributes
+    const match = variants.find((v) =>
+      allKeys.every((k) => getAttrValue(v, k) === desired[k])
+    );
+    if (match) onSelect(match);
+    else {
+      // Partial match: find variant that at least matches the changed key
+      const partial = variants.find((v) => getAttrValue(v, key) === value);
+      if (partial) onSelect(partial);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-5">
+      {allKeys.map((key) => (
+        <div key={key}>
+          <p
+            className="uppercase tracking-[0.14em] text-[0.55rem] mb-3"
+            style={{ color: "var(--color-outline)" }}
+          >
+            {key}
+            {currentSelections[key] && (
+              <span style={{ color: "var(--color-on-surface-variant)", marginLeft: "0.5rem" }}>
+                — {currentSelections[key]}
+              </span>
+            )}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {valueMap[key].map((val) => {
+              const isActive = currentSelections[key] === val;
+              // Check if this value is available given other current selections
+              const isSomeAvail = variants.some((v) => {
+                return (
+                  getAttrValue(v, key) === val &&
+                  allKeys
+                    .filter((k) => k !== key && currentSelections[k])
+                    .every((k) => getAttrValue(v, k) === currentSelections[k])
+                );
+              });
+
+              return (
+                <button
+                  key={val}
+                  onClick={() => handleSelect(key, val)}
+                  disabled={!isSomeAvail}
+                  className="px-4 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.1em] transition-all duration-300"
+                  style={{
+                    border: isActive
+                      ? "1px solid var(--color-primary-container)"
+                      : "1px solid rgba(79,70,52,0.45)",
+                    backgroundColor: isActive
+                      ? "rgba(212,160,23,0.12)"
+                      : "var(--color-surface-container)",
+                    color: isActive
+                      ? "var(--color-primary)"
+                      : isSomeAvail
+                      ? "var(--color-on-surface-variant)"
+                      : "var(--color-outline)",
+                    cursor: isSomeAvail ? "pointer" : "not-allowed",
+                    opacity: isSomeAvail ? 1 : 0.35,
+                    fontFamily: "var(--font-family)",
+                    borderRadius: 0,
+                    boxShadow: isActive ? "var(--shadow-gold-glow-sm)" : "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSomeAvail || isActive) return;
+                    e.currentTarget.style.borderColor = "var(--color-outline)";
+                    e.currentTarget.style.backgroundColor = "var(--color-surface-container-high)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSomeAvail || isActive) return;
+                    e.currentTarget.style.borderColor = "rgba(79,70,52,0.45)";
+                    e.currentTarget.style.backgroundColor = "var(--color-surface-container)";
+                  }}
+                >
+                  {val}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Variant Info Strip ───────────────────────────────────────────────────────
+function VariantInfoStrip({ variant }) {
+  if (!variant) return null;
+  const inStock = variant.stock > 0;
+  return (
+    <div
+      className="flex items-center justify-between px-4 py-3"
+      style={{
+        backgroundColor: "var(--color-surface-container-low)",
+        borderLeft: `2px solid ${inStock ? "var(--color-primary-container)" : "rgba(255,100,100,0.4)"}`,
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <span
+          className="w-2 h-2 rounded-full"
+          style={{ backgroundColor: inStock ? "var(--color-primary-container)" : "rgba(255,100,100,0.6)" }}
+        />
+        <span
+          className="text-[0.62rem] uppercase tracking-widest font-semibold"
+          style={{ color: inStock ? "var(--color-on-surface-variant)" : "rgba(255,120,120,0.75)" }}
+        >
+          {inStock ? `${variant.stock} in stock` : "Out of stock"}
+        </span>
+      </div>
+      {variant.price?.amount && (
+        <span className="text-[0.62rem] uppercase tracking-widest" style={{ color: "var(--color-outline)" }}>
+          {formatPrice(variant.price.amount, variant.price.currency)}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ─── ProductDetailsPage (Buyer View) ─────────────────────────────────────────
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { product, loading, handleGetProductById,deleting,handleDeleteProduct } = useProducts();
+  const { product, loading, handleGetProductById } = useProducts();
   const user = useSelector((s) => s.auth?.user ?? null);
   const { handleAddToCart } = useCart();
+
   const [activeImg, setActiveImg] = useState(0);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [cartAdded, setCartAdded] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const cartTimerRef = useRef(null);
+
+  const isSeller = user && product?.seller?._id && user._id === product.seller._id;
+
+  // Redirect sellers to their own view
+  useEffect(() => {
+    if (isSeller) navigate(`/seller/products/${id}`, { replace: true });
+  }, [isSeller, id, navigate]);
+
+  useEffect(() => {
+    if (id) handleGetProductById(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  // Auto-select first variant if variants exist
+  useEffect(() => {
+    if (product?.variants?.length > 0) {
+      setSelectedVariant(product.variants[0]);
+    } else {
+      setSelectedVariant(null);
+    }
+    setActiveImg(0);
+  }, [product?._id]);
+
+  // Sync gallery images when variant changes
+  const displayImages = (selectedVariant?.images?.length > 0
+    ? selectedVariant.images
+    : product?.images) ?? [];
+
+  const displayPrice = selectedVariant?.price?.amount
+    ? selectedVariant.price
+    : product?.price;
 
   const handleAddToCartClick = async () => {
     if (cartAdded) return;
@@ -53,17 +242,6 @@ export default function ProductDetailsPage() {
     clearTimeout(cartTimerRef.current);
     cartTimerRef.current = setTimeout(() => setCartAdded(false), 2500);
   };
-
-  // Is the current user the seller of this product?
-  const isSeller = user && product?.seller?._id && user._id === product.seller._id;
-
-  useEffect(() => {
-    if (id) handleGetProductById(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
-
-  // Reset thumbnail when product changes
-  useEffect(() => { setActiveImg(0); }, [product?._id]);
 
   if (loading) return <Skeleton />;
   if (!product) return (
@@ -74,169 +252,146 @@ export default function ProductDetailsPage() {
     </div>
   );
 
-  const images   = product.images ?? [];
-  const seller   = product.seller;
+  const hasVariants = product.variants && product.variants.length > 0;
+  const seller = product.seller;
 
   return (
     <div
       className="min-h-full p-6 lg:p-10"
       style={{ backgroundColor: "var(--color-background)", fontFamily: "var(--font-family)" }}
     >
-      {/* Centered container — prevents empty space on ultra-wide screens */}
       <div className="max-w-275 mx-auto">
-      {/* Back breadcrumb */}
-      <button
-      onClick={() => navigate(-1)}
-        className="flex items-center gap-2 mb-8 transition-colors duration-200"
-        style={{
-          background: "none", border: "none", cursor: "pointer",
-          color: "var(--color-outline)", fontSize: "0.62rem",
-          fontWeight: 600, textTransform: "uppercase",
-          letterSpacing: "0.12em", fontFamily: "var(--font-family)",
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-primary-container)")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-outline)")}
-      >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-        My Products
-      </button>
+        {/* Back breadcrumb */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 mb-8 transition-colors duration-200"
+          style={{
+            background: "none", border: "none", cursor: "pointer",
+            color: "var(--color-outline)", fontSize: "0.62rem",
+            fontWeight: 600, textTransform: "uppercase",
+            letterSpacing: "0.12em", fontFamily: "var(--font-family)",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-primary-container)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-outline)")}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back
+        </button>
 
-      <div className="flex flex-col lg:flex-row gap-8 xl:gap-14">
+        <div className="flex flex-col lg:flex-row gap-8 xl:gap-14">
 
-        {/* LEFT — Image gallery */}
-        <ProductImageGallery images={images} activeImg={activeImg} setActiveImg={setActiveImg} product={product} />
+          {/* LEFT — Image gallery */}
+          <ProductImageGallery images={displayImages} activeImg={activeImg} setActiveImg={setActiveImg} product={product} />
 
-        {/* RIGHT — Details panel */}
-        <div className="flex-1 flex flex-col gap-5 min-w-0">
+          {/* RIGHT — Details panel */}
+          <div className="flex-1 flex flex-col gap-5 min-w-0">
 
-          {/* Index chip */}
-          <span
-            className="self-start px-3 py-1 text-[0.52rem] font-bold uppercase tracking-[0.14em]"
-            style={{ backgroundColor: "var(--color-surface-container-low)", color: "var(--color-outline)" }}
-          >
-            Product
-          </span>
+            {/* Index chip */}
+            <span
+              className="self-start px-3 py-1 text-[0.52rem] font-bold uppercase tracking-[0.14em]"
+              style={{ backgroundColor: "var(--color-surface-container-low)", color: "var(--color-outline)" }}
+            >
+              Product
+            </span>
 
-          {/* Title */}
-          <h1
-            className="font-bold leading-tight"
-            style={{ color: "var(--color-on-surface)", fontSize: "1.55rem", letterSpacing: "-0.01em" }}
-          >
-            {product.title}
-          </h1>
+            {/* Title */}
+            <h1
+              className="font-bold leading-tight"
+              style={{ color: "var(--color-on-surface)", fontSize: "1.55rem", letterSpacing: "-0.01em" }}
+            >
+              {product.title}
+            </h1>
 
-          {/* Seller info */}
-          {seller && (
-            <div className="flex items-center gap-2">
-              <div
-                className="w-7 h-7 flex items-center justify-center text-[0.58rem] font-bold"
-                style={{
-                  backgroundColor: "var(--color-secondary-container)",
-                  color: "var(--color-on-secondary-container)",
-                  borderRadius: 0,
-                }}
-              >
-                {getInitials(seller.fullName ?? seller.email)}
-              </div>
-              <span className="text-[0.7rem]" style={{ color: "var(--color-outline)" }}>
-                Sold by&nbsp;
-                <span style={{ color: "var(--color-on-surface-variant)" }}>
-                  {seller.fullName ?? seller.email}
+            {/* Seller info */}
+            {seller && (
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-7 h-7 flex items-center justify-center text-[0.58rem] font-bold"
+                  style={{
+                    backgroundColor: "var(--color-secondary-container)",
+                    color: "var(--color-on-secondary-container)",
+                    borderRadius: 0,
+                  }}
+                >
+                  {getInitials(seller.fullName ?? seller.email)}
+                </div>
+                <span className="text-[0.7rem]" style={{ color: "var(--color-outline)" }}>
+                  Sold by&nbsp;
+                  <span style={{ color: "var(--color-on-surface-variant)" }}>
+                    {seller.fullName ?? seller.email}
+                  </span>
                 </span>
+              </div>
+            )}
+
+            {/* Price */}
+            <div className="flex items-baseline gap-3">
+              <span
+                className="font-bold"
+                style={{ color: "var(--color-primary)", fontSize: "1.55rem" }}
+              >
+                {formatPrice(displayPrice.amount, displayPrice.currency)}
+              </span>
+              <span
+                className="text-[0.58rem] font-semibold uppercase tracking-widest px-2 py-1"
+                style={{ backgroundColor: "var(--color-surface-container-high)", color: "var(--color-outline)" }}
+              >
+                {displayPrice.currency}
               </span>
             </div>
-          )}
 
-          {/* Price */}
-          <div className="flex items-baseline gap-3">
-            <span
-              className="font-bold"
-              style={{ color: "var(--color-primary)", fontSize: "1.55rem" }}
-            >
-              {formatPrice(product.price.amount, product.price.currency)}
-            </span>
-            <span
-              className="text-[0.58rem] font-semibold uppercase tracking-widest px-2 py-1"
-              style={{ backgroundColor: "var(--color-surface-container-high)", color: "var(--color-outline)" }}
-            >
-              {product.price.currency}
-            </span>
-          </div>
+            {/* Gold rule */}
+            <div style={{ height: "1px", backgroundColor: "rgba(212,160,23,0.15)" }} />
 
-          {/* Gold rule */}
-          <div style={{ height: "1px", backgroundColor: "rgba(212,160,23,0.15)" }} />
+            {/* ── Variants Section ── */}
+            {hasVariants && (
+              <div className="flex flex-col gap-4">
+                <p
+                  className="uppercase tracking-[0.18em] text-[0.55rem] font-bold"
+                  style={{ color: "var(--color-primary-container)" }}
+                >
+                  Select Options
+                </p>
 
-          {/* Description */}
-          <div>
-            <p className="uppercase tracking-[0.14em] text-[0.58rem] mb-2" style={{ color: "var(--color-outline)" }}>
-              Description
-            </p>
-            <p className="text-[0.82rem] leading-relaxed" style={{ color: "var(--color-on-surface-variant)" }}>
-              {product.description}
-            </p>
-          </div>
+                <VariantSelector
+                  variants={product.variants}
+                  selectedVariant={selectedVariant}
+                  onSelect={setSelectedVariant}
+                />
 
-          {/* Listed date */}
-          <p className="text-[0.6rem] uppercase tracking-widest" style={{ color: "var(--color-outline)" }}>
-            Listed on {formatDate(product.createdAt)}
-          </p>
+                {/* Stock / variant price strip */}
+                <VariantInfoStrip variant={selectedVariant} />
 
-          {/* Gold rule */}
-          <div style={{ height: "1px", backgroundColor: "rgba(212,160,23,0.1)" }} />
+                <div style={{ height: "1px", backgroundColor: "rgba(212,160,23,0.1)" }} />
+              </div>
+            )}
 
-          {/* Actions */}
-          {isSeller ? (
-            /* Seller: Edit + Delete */
-            <div className="flex flex-col gap-3 mt-1">
-              <button
-                onClick={() => navigate(`/seller/products/${product._id}/edit`)}
-                className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
-                style={{
-                  backgroundColor: "var(--color-primary-container)",
-                  color: "var(--color-on-primary-container)",
-                  border: "none",
-                  cursor: "pointer",
-                  fontFamily: "var(--font-family)",
-                  borderRadius: 0,
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.12)")}
-                onMouseLeave={(e) => (e.currentTarget.style.filter = "none")}
-              >
-                Edit Product
-              </button>
-
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                disabled={deleting}
-                className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
-                style={{
-                  border: "1px solid rgba(255,100,100,0.35)",
-                  color: "rgba(255,120,120,0.8)",
-                  backgroundColor: "transparent",
-                  cursor: "pointer",
-                  fontFamily: "var(--font-family)",
-                  borderRadius: 0,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255,80,80,0.08)";
-                  e.currentTarget.style.borderColor = "rgba(255,100,100,0.6)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.borderColor = "rgba(255,100,100,0.35)";
-                }}
-              >
-                Delete Listing
-              </button>
+            {/* Description */}
+            <div>
+              <p className="uppercase tracking-[0.14em] text-[0.58rem] mb-2" style={{ color: "var(--color-outline)" }}>
+                Description
+              </p>
+              <p className="text-[0.82rem] leading-relaxed" style={{ color: "var(--color-on-surface-variant)" }}>
+                {product.description}
+              </p>
             </div>
-          ) : (
-            /* Buyer: Buy Now + Add to Cart */
+
+            {/* Listed date */}
+            <p className="text-[0.6rem] uppercase tracking-widest" style={{ color: "var(--color-outline)" }}>
+              Listed on {formatDate(product.createdAt)}
+            </p>
+
+            {/* Gold rule */}
+            <div style={{ height: "1px", backgroundColor: "rgba(212,160,23,0.1)" }} />
+
+            {/* Actions — Buyer */}
             <div className="flex flex-col gap-3 mt-1">
               {/* Buy Now — solid gold */}
               <button
                 onClick={() => {/* wire buy now / Razorpay later */}}
+                disabled={hasVariants && selectedVariant && selectedVariant.stock === 0}
                 className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
                 style={{
                   backgroundColor: "var(--color-primary-container)",
@@ -255,7 +410,7 @@ export default function ProductDetailsPage() {
               {/* Add to Cart — ghost gold with feedback */}
               <button
                 onClick={handleAddToCartClick}
-                disabled={cartAdded}
+                disabled={cartAdded || (hasVariants && selectedVariant && selectedVariant.stock === 0)}
                 className="w-full py-3 font-semibold uppercase tracking-[0.13em] text-[0.68rem] flex items-center justify-center gap-2"
                 style={{
                   border: cartAdded ? "1px solid rgba(74,222,128,0.5)" : "1px solid var(--color-primary-container)",
@@ -291,31 +446,14 @@ export default function ProductDetailsPage() {
                 )}
               </button>
             </div>
-          )}
 
-          {/* Image count chip — always visible */}
-          <p className="text-[0.58rem] uppercase tracking-widest mt-1" style={{ color: "var(--color-outline)" }}>
-            {images.length} image{images.length !== 1 ? "s" : ""} uploaded
-          </p>
+            {/* Image count chip */}
+            <p className="text-[0.58rem] uppercase tracking-widest mt-1" style={{ color: "var(--color-outline)" }}>
+              {displayImages.length} image{displayImages.length !== 1 ? "s" : ""} uploaded
+            </p>
+          </div>
         </div>
       </div>
-      </div>{/* /max-w centered container */}
-
-      {/* Delete Confirmation Modal */}
-      <ConfirmModal 
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={() => {
-          setShowDeleteModal(false);
-          handleDeleteProduct(product._id);
-          navigate("/seller/products");
-        }}
-        title="Delete Listing"
-        message={`Are you sure you want to permanently delete "${product.title}"? This action cannot be undone and the product will be removed from the store.`}
-        confirmText={deleting ? "Deleting..." : "Delete Permanently"}
-        cancelText="Cancel"
-        isDestructive={true}
-      />
     </div>
   );
 }

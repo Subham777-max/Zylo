@@ -8,6 +8,7 @@ import MainLayout from "../components/layouts/MainLayout";
 import SellerLayout from "../components/layouts/SellerLayout";
 import MyProductPage from "../features/products/pages/MyProductPage";
 import ProductDetailsPage from "../features/products/pages/ProductDetailsPage";
+import SellerProductDetailsPage from "../features/products/pages/SellerProductDetailsPage";
 import CartPage from "../features/products/pages/CartPage";
 
 export const router = createBrowserRouter([
@@ -41,6 +42,10 @@ export const router = createBrowserRouter([
                     {
                         path: "products",
                         element: <MyProductPage />,
+                    },
+                    {
+                        path: "products/:id",
+                        element: <SellerProductDetailsPage />,
                     },
                     {
                         path: "orders",
