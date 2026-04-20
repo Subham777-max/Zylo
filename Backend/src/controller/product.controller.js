@@ -3,29 +3,13 @@ import { uploadFile } from "../services/storage.service.js";
 
 export async function createProduct(req, res) {
     try{
-        const { title, description, priceAmount,priceCurrency } = req.body;
+        const { title, description } = req.body;
         const seller = req.user.id;
-
-        const images = await Promise.all(req.files.map(async (file) =>{
-            return await uploadFile({
-                buffer: file.buffer,
-                fileName: file.originalname,
-                folder: "zylo/products"
-            })
-        }))
 
         const product = await productModel.create({
             title,
             description,
-            price: {
-                amount: priceAmount,
-                currency: priceCurrency || "INR"
-            },
             seller,
-            images: images.map((img,idx) => ({
-                url: img.url,
-                alt: title + "image" + (idx + 1)
-            }))
         })
 
         res.status(201).json({
@@ -129,9 +113,16 @@ export async function addProductVariant(req, res){
                 })
             }))
         }
+        console.log(attributes , typeof attributes);
+        let normalizedAttributes;
 
+        if (typeof attributes === "string") {
+            normalizedAttributes = JSON.parse(attributes);
+        } else {
+            normalizedAttributes = { ...attributes }; // 🔥 fixes null prototype
+        }
         const variant = {
-            attributes,
+            attributes: normalizedAttributes,
             price: {
                 amount: priceAmount,
                 currency: priceCurrency || "INR"

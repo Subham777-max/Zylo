@@ -23,8 +23,14 @@ const variantSchema = new mongoose.Schema({
     },
     images: [
         {
-            url: String,
-            alt: String
+            url: {
+                type: String,
+                required: true,
+            },
+            alt: {
+                type: String,
+                required: true
+            }
         }
     ]
 })
@@ -42,29 +48,6 @@ const productSchema = new mongoose.Schema({
         ref:'User',
         required:true
     },
-    price:{
-        amount:{
-            type:Number,
-            required:true
-        },
-        currency:{
-            type:String,
-            enum:["USD", "EUR", "GBP", "INR", "JPY"],
-            default:"INR",
-        }
-    },
-    images:[
-        {
-            url:{
-                type:String,
-                required:true
-            },
-            alt:{
-                type:String,
-                required:true
-            }
-        }
-    ],
     variants:[
         variantSchema
     ]

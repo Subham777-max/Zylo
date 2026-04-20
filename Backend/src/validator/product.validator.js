@@ -17,11 +17,19 @@ export const createProductValidator = [
         .trim()
         .isLength({ min: 10, max: 500 })
         .withMessage('Description must be between 10 and 500 characters'),
+    validateRequest
+];
+
+export const addVariantValidator = [
+    body('attributes')
+        .isObject()
+        .withMessage('Attributes must be an object'),
     body('priceAmount')
         .isFloat({ gt: 0 })
         .withMessage('Price amount must be a positive number'),
     body('priceCurrency')
         .isIn(['USD', 'EUR', 'GBP', 'INR', 'JPY'])
         .withMessage('Invalid currency'),
-    validateRequest
+    validateRequest,
+    
 ];

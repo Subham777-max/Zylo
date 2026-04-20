@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { authMiddleware, sellerMiddleware } from '../middleware/auth.middleware.js';
-import { createProduct,deleteProductById,getAllProducts,getMyProducts,getProductById } from '../controller/product.controller.js';
+import { addProductVariant, createProduct,deleteProductById,getAllProducts,getMyProducts,getProductById } from '../controller/product.controller.js';
 import multer from 'multer';
-import { createProductValidator } from '../validator/product.validator.js';
+import { addVariantValidator, createProductValidator } from '../validator/product.validator.js';
 
 const router = Router();
 
@@ -16,7 +16,7 @@ const upload = multer({
  * @desc Create a new product
  * @access Private(seller only)
  */
-router.post("/", authMiddleware, sellerMiddleware,upload.array("images",7),createProductValidator,createProduct);
+router.post("/", authMiddleware, sellerMiddleware,createProductValidator,createProduct);
 
 /**
  * @route GET /api/products/my
@@ -47,4 +47,10 @@ router.delete("/:id", authMiddleware, sellerMiddleware,deleteProductById);
 router.get("/", authMiddleware, getAllProducts);
 
 
+/**
+ * @route POST /api/products/:id/variant
+ * @desc Add a variant to a product
+ * @access Private(seller only)
+ */
+router.post("/:id/variant", authMiddleware, sellerMiddleware,upload.array("images",7),addVariantValidator ,addProductVariant);
 export default router;
