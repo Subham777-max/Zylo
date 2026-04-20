@@ -12,15 +12,15 @@ const cartSlice = createSlice({
             state.cart = action.payload;
         },
         setIncreaseQuantity: (state, action) => {
-            const { productId, quantity } = action.payload;
-            const cartItem = state.cart.products.find((item) => item.product._id === productId);
+            const { variantId, quantity } = action.payload;
+            const cartItem = state.cart.items?.find((item) => item.variant._id === variantId);
             if (cartItem) {
                 cartItem.quantity += quantity;
             }
         },
         setDecreaseQuantity: (state, action) => {
-            const { productId, quantity } = action.payload;
-            const cartItem = state.cart.products.find((item) => item.product._id === productId);
+            const { variantId, quantity } = action.payload;
+            const cartItem = state.cart.items?.find((item) => item.variant._id === variantId);
             if (cartItem) {
                 cartItem.quantity -= quantity;
             }
