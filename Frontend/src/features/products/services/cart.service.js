@@ -5,17 +5,17 @@ export async function getMyCart(){
     return response.data;
 }
 
-export async function addToCart(productId, quantity){
-    const response = await api.post("/carts",{productId,quantity});
+export async function addToCart(productId, variantId, quantity){
+    const response = await api.post(`/carts/${productId}/${variantId}`,{quantity});
     return response.data;
 }
 
-export async function updateCart(productId, quantity){
-    const response = await api.patch("/carts",{productId,quantity});
+export async function updateCart(productId, variantId, quantity){
+    const response = await api.patch(`/carts/${productId}/${variantId}`,{quantity});
     return response.data;
 }
 
-export async function removeFromCart(productId){
-    const response = await api.delete(`/carts/${productId}`);
+export async function removeFromCart(productId, variantId){
+    const response = await api.delete(`/carts/${productId}/${variantId}`);
     return response.data;
 }
