@@ -119,7 +119,7 @@ export async function addProductVariant(req, res){
         if (typeof attributes === "string") {
             normalizedAttributes = JSON.parse(attributes);
         } else {
-            normalizedAttributes = { ...attributes }; // 🔥 fixes null prototype
+            normalizedAttributes = { ...attributes };
         }
         const variant = {
             attributes: normalizedAttributes,

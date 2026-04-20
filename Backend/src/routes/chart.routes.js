@@ -4,11 +4,11 @@ import { addToChart, getChart, removeFromChart, updateQuantity } from "../contro
 const router = Router();
 
 /**
- * @route POST /api/carts
+ * @route POST /api/carts/:productId/:variantId
  * @desc Add a product to the cart
  * @access Private
  */
-router.post("/", authMiddleware, addToChart);
+router.post("/:productId/:variantId", authMiddleware, addToChart);
 
 /**
  * @route GET /api/carts
@@ -18,17 +18,17 @@ router.post("/", authMiddleware, addToChart);
 router.get("/", authMiddleware, getChart);
 
 /**
- * @route DELETE /api/carts/:productId
+ * @route DELETE /api/carts/:productId/:variantId
  * @desc Remove a product from the cart
  * @access Private
  */
-router.delete("/:productId", authMiddleware, removeFromChart);
+router.delete("/:productId/:variantId", authMiddleware, removeFromChart);
 
 /**
- * @route PATCH /api/carts
+ * @route PATCH /api/carts/:productId/:variantId
  * @desc Update the quantity of a product in the cart
  * @access Private
  */
-router.patch("/", authMiddleware, updateQuantity);
+router.patch("/:productId/:variantId", authMiddleware, updateQuantity);
 
 export default router;
