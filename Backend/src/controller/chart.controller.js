@@ -87,7 +87,6 @@ export async function getChart(req, res) {
 export async function removeFromChart(req, res) {
     try {
         const { productId, variantId } = req.params;
-        const quantity = req.body.quantity;
         const userId = req.user.id;
         let chart = await chartModel.findOne({ user: userId });
         if (!chart) {
@@ -96,7 +95,7 @@ export async function removeFromChart(req, res) {
 
         chart.items = chart.items.filter(item => !(item.product.equals(productId) && item.variant.equals(variantId)));
         await chart.save();
-        chart = await chart.populate("products.product");
+        chart = await chart.populate("items.product");
         res.status(200).json({ message: "Product removed from cart", success: true, cart: {
             _id: chart._id,
             user: chart.user,
@@ -119,6 +118,7 @@ export async function removeFromChart(req, res) {
 export async function updateQuantity(req, res) {
     try {
         const { productId, variantId } = req.params;
+        const { quantity } = req.body;
         const userId = req.user.id;
         let chart = await chartModel.findOne({ user: userId });
         if (!chart) {
@@ -132,7 +132,7 @@ export async function updateQuantity(req, res) {
 
         item.quantity = quantity;
         await chart.save();
-        chart = await chart.populate("products.product");
+        chart = await chart.populate("items.product");
         res.status(200).json({ message: "Product quantity updated", success: true, cart: {
             _id: chart._id,
             user: chart.user,
