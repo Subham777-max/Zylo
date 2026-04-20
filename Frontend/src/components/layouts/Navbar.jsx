@@ -7,9 +7,8 @@ import { SearchIcon, CartIcon, UserIcon, MenuIcon,CloseIcon } from "../ui/NavIco
 //  Nav links config
 
 const NAV_LINKS = [
-  { label: "New In",      to: "/new-in" },
+  { label: "New In",      to: "/" },
   { label: "Collections", to: "/collections" },
-  { label: "Designers",   to: "/designers" },
   { label: "Sellers",     to: "/sellers" },
 ];
 
