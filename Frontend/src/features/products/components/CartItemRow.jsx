@@ -10,9 +10,9 @@ const TrashIcon = () => (
 );
 
 export default function CartItemRow({ item, onIncrease, onDecrease, onRemove }) {
-  const { product, quantity } = item;
-  const coverImg = product.images?.[0]?.url;
-  const price = product.price;
+  const { product, variant, quantity } = item;
+  const coverImg = variant?.images?.[0]?.url;
+  const price = variant?.price || { amount: 0, currency: "INR" };
 
   return (
     <div
@@ -55,11 +55,18 @@ export default function CartItemRow({ item, onIncrease, onDecrease, onRemove }) 
         >
           {product.title}
         </h3>
+        {variant?.attributes && (
+          <p className="text-[0.6rem] mt-0.5 uppercase tracking-widest flex flex-wrap gap-x-3 gap-y-1" style={{ color: "var(--color-outline)" }}>
+            {Object.entries(variant.attributes).map(([k, v]) => (
+              <span key={k}>{k}: <span style={{ color: "var(--color-on-surface-variant)" }}>{v}</span></span>
+            ))}
+          </p>
+        )}
 
         {/* Quantity stepper — visible on all screens */}
         <div className="flex items-center gap-0 mt-3">
           <button
-            onClick={() => onDecrease(product._id)}
+            onClick={() => onDecrease(product._id, variant._id)}
             disabled={quantity <= 1}
             aria-label="Decrease quantity"
             className="flex items-center justify-center transition-colors duration-200 disabled:opacity-25"
@@ -92,18 +99,19 @@ export default function CartItemRow({ item, onIncrease, onDecrease, onRemove }) 
           </div>
 
           <button
-            onClick={() => onIncrease(product._id)}
+            onClick={() => onIncrease(product._id, variant._id)}
             aria-label="Increase quantity"
-            className="flex items-center justify-center transition-colors duration-200"
+            disabled={quantity >= (variant?.stock ?? 100)}
+            className="flex items-center justify-center transition-colors duration-200 disabled:opacity-25"
             style={{
               width: "28px", height: "28px",
               border: "1px solid rgba(212,160,23,0.25)",
               color: "var(--color-primary)",
               backgroundColor: "transparent",
-              cursor: "pointer",
+              cursor: quantity >= (variant?.stock ?? 100) ? "not-allowed" : "pointer",
               fontSize: "1rem", lineHeight: 1,
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--color-primary)"; }}
+            onMouseEnter={(e) => { if (quantity < (variant?.stock ?? 100)) e.currentTarget.style.borderColor = "var(--color-primary)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(212,160,23,0.25)"; }}
           >
             +
@@ -126,7 +134,7 @@ export default function CartItemRow({ item, onIncrease, onDecrease, onRemove }) 
           {quantity} × {formatPrice(price.amount, price.currency)}
         </span>
         <button
-          onClick={() => onRemove(product._id)}
+          onClick={() => onRemove(product._id, variant._id)}
           aria-label={`Remove ${product.title}`}
           className="transition-colors duration-200 mt-1"
           style={{ color: "var(--color-outline)", background: "none", border: "none", cursor: "pointer", padding: 0 }}

@@ -239,7 +239,7 @@ export default function ProductDetailsPage() {
 
   const handleAddToCartClick = async () => {
     if (cartAdded) return;
-    await handleAddToCart(product._id, 1);
+    await handleAddToCart(product._id, selectedVariant._id, 1);
     setCartAdded(true);
     clearTimeout(cartTimerRef.current);
     cartTimerRef.current = setTimeout(() => setCartAdded(false), 2500);

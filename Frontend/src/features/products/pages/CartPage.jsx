@@ -23,35 +23,35 @@ export default function CartPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleIncrease = useCallback((productId) => {
-    dispatch(setIncreaseQuantity({ productId, quantity: 1 }));
-    clearTimeout(debounceRefs.current[productId]);
-    debounceRefs.current[productId] = setTimeout(() => {
-      const item = cart?.products?.find((i) => i.product._id === productId);
-      if (item) handleUpdateCart(productId, item.quantity + 1);
+  const handleIncrease = useCallback((productId, variantId) => {
+    dispatch(setIncreaseQuantity({ variantId, quantity: 1 }));
+    clearTimeout(debounceRefs.current[variantId]);
+    debounceRefs.current[variantId] = setTimeout(() => {
+      const item = cart?.items?.find((i) => i.variant._id === variantId);
+      if (item) handleUpdateCart(productId, variantId, item.quantity + 1);
     }, 700);
   }, [cart, dispatch, handleUpdateCart]);
 
-  const handleDecrease = useCallback((productId) => {
-    const item = cart?.products?.find((i) => i.product._id === productId);
+  const handleDecrease = useCallback((productId, variantId) => {
+    const item = cart?.items?.find((i) => i.variant._id === variantId);
     if (!item || item.quantity <= 1) return;
-    dispatch(setDecreaseQuantity({ productId, quantity: 1 }));
-    clearTimeout(debounceRefs.current[productId]);
-    debounceRefs.current[productId] = setTimeout(() => {
-      const updated = cart?.products?.find((i) => i.product._id === productId);
-      if (updated) handleUpdateCart(productId, updated.quantity - 1);
+    dispatch(setDecreaseQuantity({ variantId, quantity: 1 }));
+    clearTimeout(debounceRefs.current[variantId]);
+    debounceRefs.current[variantId] = setTimeout(() => {
+      const updated = cart?.items?.find((i) => i.variant._id === variantId);
+      if (updated) handleUpdateCart(productId, variantId, updated.quantity - 1);
     }, 700);
   }, [cart, dispatch, handleUpdateCart]);
 
-  const handleRemove = useCallback((productId) => {
-    clearTimeout(debounceRefs.current[productId]);
-    handleRemoveFromCart(productId);
+  const handleRemove = useCallback((productId, variantId) => {
+    clearTimeout(debounceRefs.current[variantId]);
+    handleRemoveFromCart(productId, variantId);
   }, [handleRemoveFromCart]);
 
   // ── Derived state ────────────────────────────────────────────────────────────
-  const cartItems = cart?.products ?? [];
-  const currency  = cartItems[0]?.product.price.currency ?? "INR";
-  const subtotal  = cartItems.reduce((s, i) => s + i.product.price.amount * i.quantity, 0);
+  const cartItems = cart?.items ?? [];
+  const currency  = cartItems[0]?.variant?.price?.currency ?? "INR";
+  const subtotal  = cartItems.reduce((s, i) => s + (i.variant?.price?.amount ?? 0) * i.quantity, 0);
   const itemCount = cartItems.reduce((s, i) => s + i.quantity, 0);
 
   if (loading && cartItems.length === 0) return <CartSkeleton />;
