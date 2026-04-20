@@ -1,7 +1,8 @@
 import api from "../../api/api"
 
-export async function createProduct(formData){
-    const response = await api.post("/products", formData);
+// Create product — only title + description (no images/price at product level)
+export async function createProduct({ title, description }) {
+    const response = await api.post("/products", { title, description });
     return response.data;
 }
 
@@ -20,12 +21,14 @@ export async function getProductById(id){
     return response.data;
 }
 
-// export async function updateProduct(id, data){
-//     const response = await api.put(`/products/${id}`, data)
-//     return response.data
-// }
+// Add variant to product
+export async function addVariant(productId, payload) {
+    const response = await api.post(`/products/${productId}/variant`, payload);
+    return response.data;
+}
 
 export async function deleteProduct(id){
     const response = await api.delete(`/products/${id}`)
     return response.data
 }
+

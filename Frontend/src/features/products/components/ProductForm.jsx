@@ -1,11 +1,3 @@
-const CURRENCIES = [
-  { value: "INR", label: "₹ INR — Indian Rupee" },
-  { value: "USD", label: "$ USD — US Dollar" },
-  { value: "EUR", label: "€ EUR — Euro" },
-  { value: "GBP", label: "£ GBP — British Pound" },
-  { value: "JPY", label: "¥ JPY — Japanese Yen" },
-];
-
 // Shared label style
 const labelStyle = {
   color: "var(--color-outline)",
@@ -47,7 +39,7 @@ function Field({ label, error, children }) {
 }
 
 // Focus / blur handlers
-const focusStyle  = (e) => {
+const focusStyle = (e) => {
   e.target.style.borderColor = "var(--color-primary-container)";
   e.target.style.boxShadow = "0 2px 12px rgba(212,160,23,0.12)";
 };
@@ -97,42 +89,13 @@ export default function ProductForm({ form, onChange, errors, onSubmit, isSubmit
         />
       </Field>
 
-      {/* Price + Currency row */}
-      <div className="flex gap-3">
-        <Field label="Price" error={errors.price}>
-          <input
-            id="product-price"
-            name="price"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="0.00"
-            value={form.price}
-            onChange={handle}
-            onFocus={focusStyle}
-            onBlur={blurStyle}
-            style={{ ...inputBase, width: "100%" }}
-          />
-        </Field>
-
-        <Field label="Currency" error={errors.currency}>
-          <select
-            id="product-currency"
-            name="currency"
-            value={form.currency}
-            onChange={handle}
-            onFocus={focusStyle}
-            onBlur={blurStyle}
-            style={{ ...inputBase, cursor: "pointer", appearance: "none", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239b8f7a'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 0.85rem center" }}
-          >
-            {CURRENCIES.map(({ value, label }) => (
-              <option key={value} value={value} style={{ backgroundColor: "var(--color-surface-container-high)" }}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
+      {/* Info note — variants next */}
+      <p
+        className="text-[0.58rem] uppercase tracking-widest"
+        style={{ color: "var(--color-outline)" }}
+      >
+        Pricing, images &amp; stock are set per variant in the next step.
+      </p>
 
       {/* Submit */}
       <button
@@ -158,10 +121,15 @@ export default function ProductForm({ form, onChange, errors, onSubmit, isSubmit
             <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="30 70" strokeLinecap="round" />
             </svg>
-            Publishing…
+            Creating…
           </>
         ) : (
-          "Publish Listing"
+          <>
+            Continue
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+            </svg>
+          </>
         )}
       </button>
     </form>

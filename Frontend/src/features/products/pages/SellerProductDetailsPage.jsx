@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
 import ProductImageGallery from "../components/ProductImageGallery";
+import ImageUploader from "../components/ImageUploader";
 import { formatPrice, formatDate } from "../../../components/helpers/helpers";
 import ConfirmModal from "../../../components/utils/ConfirmModal";
 
@@ -250,15 +251,20 @@ function VariantFormCard({ index, variant, onChange, onRemove, isOnly }) {
         </div>
       </div>
 
-      {/* Variant images note */}
-      <p className="text-[0.55rem] uppercase tracking-widest" style={{ color: "var(--color-outline)" }}>
-        Variant-specific image upload — coming soon
-      </p>
+      {/* Variant Images */}
+      <div className="mt-2">
+        <label className="zylo-label mb-2 block">Variant Images</label>
+        <ImageUploader 
+          images={variant.images || []} 
+          onChange={(imgs) => onChange({ ...variant, images: imgs })} 
+        />
+      </div>
     </div>
   );
 }
 
 // ─── Existing Variant List ────────────────────────────────────────────────────
+
 function ExistingVariantList({ variants }) {
   if (!variants || variants.length === 0) return (
     <div
@@ -351,13 +357,15 @@ const blankVariant = () => ({
   price: "",
   currency: "INR",
   stock: "",
+  images: [],
 });
 
 // ─── SellerProductDetailsPage ─────────────────────────────────────────────────
 export default function SellerProductDetailsPage() {
   const { id } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
-  const { product, loading, handleGetProductById, deleting, handleDeleteProduct } = useProducts();
+  const { product, loading, handleGetProductById, deleting, handleDeleteProduct, handleAddVariant } = useProducts();
 
   const [activeImg, setActiveImg] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -369,9 +377,14 @@ export default function SellerProductDetailsPage() {
   const variantFormRef = useRef(null);
 
   useEffect(() => {
-    if (id) handleGetProductById(id);
+    if (id) {
+      handleGetProductById(id);
+      if (location.state?.openVariantForm) {
+        handleOpenVariantForm();
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, location.state]);
 
   useEffect(() => { setActiveImg(0); }, [product?._id]);
 
@@ -396,13 +409,40 @@ export default function SellerProductDetailsPage() {
   };
 
   const handleSaveVariants = async () => {
-    // TODO: wire up to backend route when ready
     setVariantSaving(true);
-    setTimeout(() => {
-      setVariantSaving(false);
+    try {
+      // Save all variants sequentially
+      for (const form of variantForms) {
+        // Convert attributes array [{key, value}] to object {key: value}
+        const attrsObj = {};
+        form.attributes.forEach((attr) => {
+          if (attr.key.trim() && attr.value.trim()) {
+            attrsObj[attr.key.trim()] = attr.value.trim();
+          }
+        });
+
+        // Skip saving empty variants
+        if (Object.keys(attrsObj).length === 0 && (!form.price || form.price === "")) continue;
+
+        const payload = {
+          attributes: attrsObj,
+          priceAmount: Number(form.price),
+          priceCurrency: form.currency,
+          stock: Number(form.stock) || 0,
+          images: form.images?.map(img => img.file) || []
+        };
+
+        await handleAddVariant(id, payload);
+      }
+      
+      // Reset after success
       setShowVariantForm(false);
       setVariantForms([blankVariant()]);
-    }, 1000);
+    } catch (error) {
+      console.error("Failed to save variants:", error);
+    } finally {
+      setVariantSaving(false);
+    }
   };
 
   if (loading) return <Skeleton />;
@@ -414,7 +454,9 @@ export default function SellerProductDetailsPage() {
     </div>
   );
 
-  const images = product.images ?? [];
+  const images = product.images?.length > 0 
+    ? product.images 
+    : product.variants?.flatMap(v => v.images || []) || [];
 
   return (
     <div
@@ -480,17 +522,25 @@ export default function SellerProductDetailsPage() {
             </h1>
 
             {/* Price */}
-            <div className="flex items-baseline gap-3">
-              <span className="font-bold" style={{ color: "var(--color-primary)", fontSize: "1.55rem" }}>
-                {formatPrice(product.price.amount, product.price.currency)}
-              </span>
-              <span
-                className="text-[0.58rem] font-semibold uppercase tracking-widest px-2 py-1"
-                style={{ backgroundColor: "var(--color-surface-container-high)", color: "var(--color-outline)" }}
-              >
-                {product.price.currency}
-              </span>
-            </div>
+            {product.variants?.length > 0 && product.variants[0].price ? (
+              <div className="flex items-baseline gap-3">
+                <span className="font-bold" style={{ color: "var(--color-primary)", fontSize: "1.55rem" }}>
+                  {formatPrice(product.variants[0].price.amount, product.variants[0].price.currency)}
+                </span>
+                <span
+                  className="text-[0.58rem] font-semibold uppercase tracking-widest px-2 py-1"
+                  style={{ backgroundColor: "var(--color-surface-container-high)", color: "var(--color-outline)" }}
+                >
+                  {product.variants[0].price.currency}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-baseline gap-3">
+                <span className="font-bold uppercase tracking-widest text-[0.8rem]" style={{ color: "var(--color-outline)" }}>
+                  Price pending setup
+                </span>
+              </div>
+            )}
 
             <div style={{ height: "1px", backgroundColor: "rgba(212,160,23,0.15)" }} />
 

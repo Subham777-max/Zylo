@@ -64,11 +64,6 @@ export const router = createBrowserRouter([
             // Add more navbar-wrapped pages here
         ],
     },
-    // ── Create product — no navbar, full-page ──────────────────────────────────
-    {
-        path: "/seller/create-product",
-        element: <ProtectedRoutes><SellerRoutes><CreateProductPage /></SellerRoutes></ProtectedRoutes>,
-    },
     // ── Auth pages ─────────────────────────────────────────────────────────────
     {
         path: "/register",

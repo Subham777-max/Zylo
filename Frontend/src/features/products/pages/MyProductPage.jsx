@@ -1,7 +1,8 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
 import ProductCard from "../components/ProductCard";
+import ProductForm from "../components/ProductForm";
 
 // ── Skeleton card ──────────────────────────────────────────────────────────────
 function SkeletonCard() {
@@ -61,15 +62,91 @@ function EmptyState({ onAdd }) {
   );
 }
 
+// ── Create Product Modal ────────────────────────────────────────────────────────
+function CreateProductModal({ onClose }) {
+  const navigate = useNavigate();
+  const { handleCreateProduct, loading } = useProducts();
+  const [form, setForm] = useState({ title: "", description: "" });
+  const [errors, setErrors] = useState({});
+
+  function handleFieldChange(name, value) {
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const errs = {};
+    if (!form.title.trim()) errs.title = "Title is required.";
+    if (!form.description.trim()) errs.description = "Description is required.";
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+
+    try {
+      const newProduct = await handleCreateProduct({ title: form.title, description: form.description });
+      // Navigate to seller product details with a state flag to auto-open variant form
+      navigate(`/seller/products/${newProduct._id}`, { state: { openVariantForm: true } });
+    } catch(error) {
+      console.log(error);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: "rgba(10,10,10,0.85)", backdropFilter: "blur(4px)" }}
+    >
+      <div 
+        className="w-full max-w-md p-8 relative flex flex-col"
+        style={{ backgroundColor: "var(--color-background)", border: "1px solid var(--color-outline-variant)" }}
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4"
+          style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer" }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <h2 className="font-bold tracking-[0.15em] uppercase mb-1" style={{ color: "var(--color-primary-container)", fontSize: "1.2rem" }}>
+          New Listing
+        </h2>
+        <p className="uppercase tracking-[0.14em] text-[0.6rem] mb-6" style={{ color: "var(--color-outline)" }}>
+          Basic Details
+        </p>
+
+        <ProductForm 
+          form={form} 
+          onChange={handleFieldChange} 
+          errors={errors} 
+          onSubmit={handleSubmit} 
+          isSubmitting={loading} 
+        />
+      </div>
+    </div>
+  );
+}
+
 // ── MyProductPage ──────────────────────────────────────────────────────────────
 export default function MyProductPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { sellerProducts, loading, handleGetProductsCreatedByMe } = useProducts();
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     handleGetProductsCreatedByMe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (location.state?.openCreateModal) {
+      setShowCreateModal(true);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   return (
     <div
@@ -92,7 +169,7 @@ export default function MyProductPage() {
         </div>
 
         <button
-          onClick={() => navigate("/seller/create-product")}
+          onClick={() => setShowCreateModal(true)}
           className="flex items-center gap-2 px-5 py-2.5 transition-all duration-300 shrink-0 text-[0.62rem] font-semibold uppercase tracking-[0.13em]"
           style={{
             border: "1px solid var(--color-primary-container)",
@@ -121,7 +198,7 @@ export default function MyProductPage() {
           {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : !sellerProducts?.length ? (
-        <EmptyState onAdd={() => navigate("/seller/create-product")} />
+        <EmptyState onAdd={() => setShowCreateModal(true)} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {sellerProducts.map((product, idx) => (
@@ -129,6 +206,9 @@ export default function MyProductPage() {
           ))}
         </div>
       )}
+
+      {/* Create Modal */}
+      {showCreateModal && <CreateProductModal onClose={() => setShowCreateModal(false)} />}
     </div>
   );
 }

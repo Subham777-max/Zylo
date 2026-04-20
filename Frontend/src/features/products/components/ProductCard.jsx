@@ -24,8 +24,16 @@ const EyeIcon = () => (
 
 export default function ProductCard({ product, index }) {
   const navigate = useNavigate();
-  const coverImage = product.images?.[0]?.url;
-  const coverAlt   = product.images?.[0]?.alt ?? product.title;
+  // Image from first variant
+  const allImages = product.variants?.flatMap(v => v.images) || [];
+  const coverImage = allImages?.[0]?.url;
+  const coverAlt   = allImages?.[0]?.alt ?? product.title;
+  
+  // Price from first variant
+  const firstVariant = product.variants?.[0];
+  const priceDisplay = firstVariant?.price?.amount 
+    ? formatPrice(firstVariant.price.amount, firstVariant.price.currency) 
+    : "No variant";
 
   return (
     <div
@@ -70,7 +78,7 @@ export default function ProductCard({ product, index }) {
         </span>
 
         {/* Image count badge */}
-        {product.images?.length > 1 && (
+        {allImages.length > 1 && (
           <span
             className="absolute bottom-3 right-3 text-[0.5rem] uppercase tracking-widest"
             style={{
@@ -80,7 +88,7 @@ export default function ProductCard({ product, index }) {
               backdropFilter: "blur(4px)",
             }}
           >
-            +{product.images.length - 1} more
+            +{allImages.length - 1} more
           </span>
         )}
       </div>
@@ -96,9 +104,9 @@ export default function ProductCard({ product, index }) {
           </h3>
           <span
             className="font-bold shrink-0"
-            style={{ color: "var(--color-primary)", fontSize: "0.9rem" }}
+            style={{ color: firstVariant ? "var(--color-primary)" : "var(--color-outline)", fontSize: firstVariant ? "0.9rem" : "0.7rem", marginTop: firstVariant ? "0" : "0.2rem", textTransform: "uppercase" }}
           >
-            {formatPrice(product.price.amount, product.price.currency)}
+            {priceDisplay}
           </span>
         </div>
 

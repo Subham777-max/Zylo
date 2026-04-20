@@ -137,7 +137,7 @@ export default function SellerSidebar() {
           style={{ height: "1px", backgroundColor: "rgba(212,160,23,0.08)" }}
         />
         <button
-          onClick={() => navigate("/seller/create-product")}
+          onClick={() => navigate("/seller/products", { state: { openCreateModal: true } })}
           className="flex items-center justify-center gap-2 w-full transition-all duration-300"
           style={{
             border: "1px solid var(--color-primary-container)",

@@ -227,9 +227,11 @@ export default function ProductDetailsPage() {
   }, [product?._id]);
 
   // Sync gallery images when variant changes
-  const displayImages = (selectedVariant?.images?.length > 0
+  const displayImages = selectedVariant?.images?.length > 0
     ? selectedVariant.images
-    : product?.images) ?? [];
+    : product?.images?.length > 0
+      ? product.images
+      : product?.variants?.flatMap(v => v.images || []) || [];
 
   const displayPrice = selectedVariant?.price?.amount
     ? selectedVariant.price
@@ -328,18 +330,29 @@ export default function ProductDetailsPage() {
 
             {/* Price */}
             <div className="flex items-baseline gap-3">
-              <span
-                className="font-bold"
-                style={{ color: "var(--color-primary)", fontSize: "1.55rem" }}
-              >
-                {formatPrice(displayPrice.amount, displayPrice.currency)}
-              </span>
-              <span
-                className="text-[0.58rem] font-semibold uppercase tracking-widest px-2 py-1"
-                style={{ backgroundColor: "var(--color-surface-container-high)", color: "var(--color-outline)" }}
-              >
-                {displayPrice.currency}
-              </span>
+              {displayPrice?.amount ? (
+                <>
+                  <span
+                    className="font-bold"
+                    style={{ color: "var(--color-primary)", fontSize: "1.55rem" }}
+                  >
+                    {formatPrice(displayPrice.amount, displayPrice.currency)}
+                  </span>
+                  <span
+                    className="text-[0.58rem] font-semibold uppercase tracking-widest px-2 py-1"
+                    style={{ backgroundColor: "var(--color-surface-container-high)", color: "var(--color-outline)" }}
+                  >
+                    {displayPrice.currency}
+                  </span>
+                </>
+              ) : (
+                <span
+                  className="font-bold uppercase tracking-widest text-[0.7rem]"
+                  style={{ color: "var(--color-outline)" }}
+                >
+                  Select a variant to see price
+                </span>
+              )}
             </div>
 
             {/* Gold rule */}
@@ -391,17 +404,17 @@ export default function ProductDetailsPage() {
               {/* Buy Now — solid gold */}
               <button
                 onClick={() => {/* wire buy now / Razorpay later */}}
-                disabled={hasVariants && selectedVariant && selectedVariant.stock === 0}
+                disabled={!selectedVariant || selectedVariant.stock === 0}
                 className="w-full py-3 font-semibold uppercase tracking-[0.13em] transition-all duration-300 text-[0.68rem]"
                 style={{
-                  backgroundColor: "var(--color-primary-container)",
-                  color: "var(--color-on-primary-container)",
+                  backgroundColor: (!selectedVariant || selectedVariant.stock === 0) ? "var(--color-surface-container-high)" : "var(--color-primary-container)",
+                  color: (!selectedVariant || selectedVariant.stock === 0) ? "var(--color-outline)" : "var(--color-on-primary-container)",
                   border: "none",
-                  cursor: "pointer",
+                  cursor: (!selectedVariant || selectedVariant.stock === 0) ? "not-allowed" : "pointer",
                   fontFamily: "var(--font-family)",
                   borderRadius: 0,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.12)")}
+                onMouseEnter={(e) => { if (selectedVariant && selectedVariant.stock > 0) e.currentTarget.style.filter = "brightness(1.12)" }}
                 onMouseLeave={(e) => (e.currentTarget.style.filter = "none")}
               >
                 Buy Now
@@ -410,25 +423,25 @@ export default function ProductDetailsPage() {
               {/* Add to Cart — ghost gold with feedback */}
               <button
                 onClick={handleAddToCartClick}
-                disabled={cartAdded || (hasVariants && selectedVariant && selectedVariant.stock === 0)}
+                disabled={cartAdded || !selectedVariant || selectedVariant.stock === 0}
                 className="w-full py-3 font-semibold uppercase tracking-[0.13em] text-[0.68rem] flex items-center justify-center gap-2"
                 style={{
-                  border: cartAdded ? "1px solid rgba(74,222,128,0.5)" : "1px solid var(--color-primary-container)",
-                  color: cartAdded ? "rgba(74,222,128,0.9)" : "var(--color-primary-container)",
+                  border: cartAdded ? "1px solid rgba(74,222,128,0.5)" : (!selectedVariant || selectedVariant.stock === 0) ? "1px solid rgba(79,70,52,0.4)" : "1px solid var(--color-primary-container)",
+                  color: cartAdded ? "rgba(74,222,128,0.9)" : (!selectedVariant || selectedVariant.stock === 0) ? "rgba(79,70,52,0.6)" : "var(--color-primary-container)",
                   backgroundColor: cartAdded ? "rgba(74,222,128,0.06)" : "transparent",
-                  cursor: cartAdded ? "default" : "pointer",
+                  cursor: cartAdded || (!selectedVariant || selectedVariant.stock === 0) ? "not-allowed" : "pointer",
                   fontFamily: "var(--font-family)",
                   borderRadius: 0,
                   transition: "all 400ms cubic-bezier(0.4, 0, 0.2, 1)",
                 }}
                 onMouseEnter={(e) => {
-                  if (cartAdded) return;
+                  if (cartAdded || !selectedVariant || selectedVariant.stock === 0) return;
                   e.currentTarget.style.backgroundColor = "rgba(212,160,23,0.08)";
                   e.currentTarget.style.borderColor = "var(--color-primary)";
                   e.currentTarget.style.color = "var(--color-primary)";
                 }}
                 onMouseLeave={(e) => {
-                  if (cartAdded) return;
+                  if (cartAdded || !selectedVariant || selectedVariant.stock === 0) return;
                   e.currentTarget.style.backgroundColor = "transparent";
                   e.currentTarget.style.borderColor = "var(--color-primary-container)";
                   e.currentTarget.style.color = "var(--color-primary-container)";
