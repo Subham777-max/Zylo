@@ -7,12 +7,16 @@ const chartSchema = new mongoose.Schema({
         required:true,
         unique:true,
     },
-    products:[
+    items:[
         {
             product:{
                 type:mongoose.Schema.Types.ObjectId,
                 ref:'Product',
                 required:true,
+            },
+            variant:{
+                type: mongoose.Schema.Types.ObjectId,
+                required: true,
             },
             quantity:{
                 type:Number,
