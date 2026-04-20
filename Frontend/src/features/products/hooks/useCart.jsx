@@ -18,10 +18,10 @@ export function useCart(){
         }
     };
 
-    const handleAddToCart = async (productId, quantity) => {
+    const handleAddToCart = async (productId, variantId, quantity) => {
         try {
             dispatch(setLoading(true));
-            const data = await addToCart(productId, quantity);
+            const data = await addToCart(productId, variantId, quantity);
             dispatch(setCart(data.cart));
         } catch (error) {
             dispatch(setError(error));
@@ -30,10 +30,10 @@ export function useCart(){
         }
     };
 
-    const handleUpdateCart = async (productId, quantity) => {
+    const handleUpdateCart = async (productId, variantId, quantity) => {
         try {
             dispatch(setLoading(true));
-            const data = await updateCart(productId, quantity);
+            const data = await updateCart(productId, variantId, quantity);
             dispatch(setCart(data.cart));
         } catch (error) {
             dispatch(setError(error));
@@ -42,10 +42,10 @@ export function useCart(){
         }
     };
 
-    const handleRemoveFromCart = async (productId) => {
+    const handleRemoveFromCart = async (productId, variantId) => {
         try {
             dispatch(setLoading(true));
-            const data = await removeFromCart(productId);
+            const data = await removeFromCart(productId, variantId);
             dispatch(setCart(data.cart));
         } catch (error) {
             dispatch(setError(error));
