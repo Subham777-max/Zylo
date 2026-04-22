@@ -10,6 +10,7 @@ import MyProductPage from "../features/products/pages/MyProductPage";
 import ProductDetailsPage from "../features/products/pages/ProductDetailsPage";
 import SellerProductDetailsPage from "../features/products/pages/SellerProductDetailsPage";
 import CartPage from "../features/products/pages/CartPage";
+import HomePage from "../features/products/pages/HomePage";
 
 export const router = createBrowserRouter([
     {
@@ -18,7 +19,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <h1 style={{ paddingLeft: "2rem", paddingTop: "2rem", color: "var(--color-on-surface)" }}>Home</h1>,
+                element: <HomePage />,
             },
             // ── Shared product details — any authenticated user ────────────────
             {
