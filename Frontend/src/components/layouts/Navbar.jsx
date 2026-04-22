@@ -22,7 +22,7 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   // Dynamically retrieve cart count & user from Redux if slices exist
-  const cartCount = useSelector((s) => s.cart?.items?.length ?? 0);
+  const cartCount = useSelector((s) => s.cart?.cart?.items?.length ?? 0);
   const user      = useSelector((s) => s.auth?.user ?? null);
 
   // Add thicker backdrop when scrolled
@@ -124,11 +124,10 @@ export default function Navbar() {
               <CartIcon />
               {cartCount > 0 && (
                 <span
-                  className="absolute top-0 right-0 w-4 h-4 flex items-center justify-center text-[0.55rem] font-bold"
+                  className="absolute top-0 right-0 w-4 h-4 rounded-full flex items-center justify-center text-[0.55rem] font-bold"
                   style={{
                     backgroundColor: "var(--color-primary-container)",
                     color: "var(--color-on-primary-container)",
-                    borderRadius: 0,
                   }}
                 >
                   {cartCount > 99 ? "99+" : cartCount}
