@@ -7,7 +7,7 @@ function ProductImageGallery({images, activeImg, setActiveImg, product}) {
             className="w-full overflow-hidden max-h-125"
             style={{
               aspectRatio: "4/5",
-              maxHeight: "500px",
+              maxHeight: "580px",
               backgroundColor: "var(--color-surface-container-low)",
             }}
           >
