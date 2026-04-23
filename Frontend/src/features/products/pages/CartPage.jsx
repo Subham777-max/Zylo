@@ -23,22 +23,24 @@ export default function CartPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getVariantId = (i) => (typeof i.variant === 'string' ? i.variant : i.variant?._id);
+
   const handleIncrease = useCallback((productId, variantId) => {
     dispatch(setIncreaseQuantity({ variantId, quantity: 1 }));
     clearTimeout(debounceRefs.current[variantId]);
     debounceRefs.current[variantId] = setTimeout(() => {
-      const item = cart?.items?.find((i) => i.variant._id === variantId);
+      const item = cart?.items?.find((i) => getVariantId(i) === variantId);
       if (item) handleUpdateCart(productId, variantId, item.quantity + 1);
     }, 700);
   }, [cart, dispatch, handleUpdateCart]);
 
   const handleDecrease = useCallback((productId, variantId) => {
-    const item = cart?.items?.find((i) => i.variant._id === variantId);
+    const item = cart?.items?.find((i) => getVariantId(i) === variantId);
     if (!item || item.quantity <= 1) return;
     dispatch(setDecreaseQuantity({ variantId, quantity: 1 }));
     clearTimeout(debounceRefs.current[variantId]);
     debounceRefs.current[variantId] = setTimeout(() => {
-      const updated = cart?.items?.find((i) => i.variant._id === variantId);
+      const updated = cart?.items?.find((i) => getVariantId(i) === variantId);
       if (updated) handleUpdateCart(productId, variantId, updated.quantity - 1);
     }, 700);
   }, [cart, dispatch, handleUpdateCart]);
@@ -50,8 +52,9 @@ export default function CartPage() {
 
   // ── Derived state ────────────────────────────────────────────────────────────
   const cartItems = cart?.items ?? [];
-  const currency  = cartItems[0]?.variant?.price?.currency ?? "INR";
-  const subtotal  = cartItems.reduce((s, i) => s + (i.variant?.price?.amount ?? 0) * i.quantity, 0);
+  const getVariantObj = (i) => (typeof i?.variant === 'object' ? i?.variant : i?.product?.variants);
+  const currency  = getVariantObj(cartItems[0])?.price?.currency ?? "INR";
+  const subtotal  = cart?.total ?? cartItems.reduce((s, i) => s + (getVariantObj(i)?.price?.amount ?? 0) * i.quantity, 0);
   const itemCount = cartItems.reduce((s, i) => s + i.quantity, 0);
 
   if (loading && cartItems.length === 0) return <CartSkeleton />;
