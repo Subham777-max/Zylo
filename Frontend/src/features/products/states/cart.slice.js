@@ -13,16 +13,28 @@ const cartSlice = createSlice({
         },
         setIncreaseQuantity: (state, action) => {
             const { variantId, quantity } = action.payload;
-            const cartItem = state.cart.items?.find((item) => item.variant._id === variantId);
+            const getVariantId = (i) => (typeof i.variant === 'string' ? i.variant : i.variant?._id);
+            const cartItem = state.cart.items?.find((item) => getVariantId(item) === variantId);
             if (cartItem) {
                 cartItem.quantity += quantity;
+                const getVariantObj = (i) => (typeof i?.variant === 'object' ? i?.variant : i?.product?.variants);
+                const price = getVariantObj(cartItem)?.price?.amount || 0;
+                if (state.cart.total !== undefined) {
+                    state.cart.total += (price * quantity);
+                }
             }
         },
         setDecreaseQuantity: (state, action) => {
             const { variantId, quantity } = action.payload;
-            const cartItem = state.cart.items?.find((item) => item.variant._id === variantId);
+            const getVariantId = (i) => (typeof i.variant === 'string' ? i.variant : i.variant?._id);
+            const cartItem = state.cart.items?.find((item) => getVariantId(item) === variantId);
             if (cartItem) {
                 cartItem.quantity -= quantity;
+                const getVariantObj = (i) => (typeof i?.variant === 'object' ? i?.variant : i?.product?.variants);
+                const price = getVariantObj(cartItem)?.price?.amount || 0;
+                if (state.cart.total !== undefined) {
+                    state.cart.total -= (price * quantity);
+                }
             }
         },
         setLoading: (state, action) => {
