@@ -1,3 +1,4 @@
+import { getCartWithTotal } from "../dao/cart.dao.js";
 import { getVariantStock } from "../dao/product.dao.js";
 import chartModel from "../models/chart.model.js";
 
@@ -30,25 +31,12 @@ export async function addToChart(req, res) {
         }
 
         await chart.save();
-        chart = await chart.populate("items.product");
+        chart = await getCartWithTotal(userId);
 
         res.status(200).json({ 
             message: "Product added to cart", 
             success: true, 
-            cart: {
-                _id: chart._id,
-                user: chart.user,
-                items: chart.items.map(item => ({
-                    product: {
-                        _id: item.product._id,
-                        title: item.product.title,
-                        description: item.product.description,
-                    },
-                    variant: item.product.variants.find(v => v._id.equals(item.variant)),
-                    quantity: item.quantity
-                }))
-
-            } 
+            cart: chart
         });
 
     }catch (error) {
@@ -60,23 +48,11 @@ export async function addToChart(req, res) {
 export async function getChart(req, res) {
     try {
         const userId = req.user.id;
-        const chart = await chartModel.findOne({ user: userId }).populate("items.product");
+        const chart = await getCartWithTotal(userId);
         res.status(200).json({ 
             message: "Cart fetched successfully", 
             success: true, 
-            cart: {
-                _id: chart._id,
-                user: chart.user,
-                items: chart.items.map(item => ({
-                    product: {
-                        _id: item.product._id,
-                        title: item.product.title,
-                        description: item.product.description
-                    },
-                    variant: item.product.variants.find(v => v._id.equals(item.variant)),
-                    quantity: item.quantity
-                }))
-            } 
+            cart: chart
         });
     } catch (error) {
         console.error("Error fetching cart:", error);
@@ -95,20 +71,8 @@ export async function removeFromChart(req, res) {
 
         chart.items = chart.items.filter(item => !(item.product.equals(productId) && item.variant.equals(variantId)));
         await chart.save();
-        chart = await chart.populate("items.product");
-        res.status(200).json({ message: "Product removed from cart", success: true, cart: {
-            _id: chart._id,
-            user: chart.user,
-            items: chart.items.map(item => ({
-                product: {
-                    _id: item.product._id,
-                    title: item.product.title,
-                    description: item.product.description
-                },
-                variant: item.product.variants.find(v => v._id.equals(item.variant)),
-                quantity: item.quantity
-            }))
-        } });
+        chart = await getCartWithTotal(userId);
+        res.status(200).json({ message: "Product removed from cart", success: true, cart: chart });
     } catch (error) {
         console.error("Error removing from cart:", error);
         res.status(500).json({ message: "Internal server error", success: false });
@@ -130,22 +94,21 @@ export async function updateQuantity(req, res) {
             return res.status(404).json({ message: "Product not found in cart", success: false });
         }
 
+        const stock = await getVariantStock(productId, variantId);
+
+        if (stock < quantity) {
+            return res.status(400).json({
+                message: "Insufficient stock",
+                success: false
+            });
+        }
+
+        item.quantity = quantity;
+
         item.quantity = quantity;
         await chart.save();
-        chart = await chart.populate("items.product");
-        res.status(200).json({ message: "Product quantity updated", success: true, cart: {
-            _id: chart._id,
-            user: chart.user,
-            items: chart.items.map(item => ({
-                product: {
-                    _id: item.product._id,
-                    title: item.product.title,
-                    description: item.product.description
-                },
-                variant: item.product.variants.find(v => v._id.equals(item.variant)),
-                quantity: item.quantity
-            }))
-        } });
+        chart = await getCartWithTotal(userId);
+        res.status(200).json({ message: "Product quantity updated", success: true, cart: chart });
     } catch (error) {
         console.error("Error updating product quantity:", error);
         res.status(500).json({ message: "Internal server error", success: false });
