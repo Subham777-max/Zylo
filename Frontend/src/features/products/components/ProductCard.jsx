@@ -46,7 +46,7 @@ export default function ProductCard({ product, index }) {
       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--color-surface-container-low)")}
     >
       {/* ── Image ──────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden" style={{ aspectRatio: "4/5", maxHeight: "320px" }}>
+      <div className="relative overflow-hidden" style={{ aspectRatio: "4/5", maxHeight: "460px" }}>
         {coverImage ? (
           <img
             src={coverImage}
